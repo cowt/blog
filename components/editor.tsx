@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { savePostAction } from "@/app/actions"
 import { toast } from "sonner"
@@ -15,7 +15,8 @@ import { ArrowLeft, Loader2, Eye, EyeOff, Download } from "lucide-react"
 import { PublishModal } from "./editor/publish-modal"
 import { format } from "date-fns"
 import { marked } from "marked"
-import { MarkdownRenderer } from "@/components/markdown"
+import { PostArticle } from "@/components/post/article"
+import type { Post } from "@/types"
 
 interface EditorProps {
   initialPost?: {
@@ -47,6 +48,23 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const textareaSingleRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
+
+  const fallbackCreatedAtRef = useRef(initialPost?.createdAt ?? new Date().toISOString())
+  const initialTitle = initialPost?.title || ""
+  const initialPublished = initialPost?.published ?? false
+
+  const derivedTitle = useMemo(() => extractTitle(markdown) || initialTitle || "Untitled", [markdown, initialTitle])
+
+  const previewPost = useMemo<Post>(
+    () => ({
+      slug: slug || newSlug || "preview",
+      title: derivedTitle,
+      content: markdown || "",
+      createdAt: fallbackCreatedAtRef.current,
+      published: initialPublished,
+    }),
+    [slug, newSlug, derivedTitle, markdown, initialPublished],
+  )
 
   // Adjust textarea height
   const adjustTextareaHeight = (textarea: HTMLTextAreaElement | null) => {
@@ -271,10 +289,10 @@ Start writing your markdown content here..."
             <div className="w-px bg-border" />
             
             {/* Right: Preview */}
-            <div className="flex-1 bg-muted/10 px-4 py-12">
-              <article style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
-                <MarkdownRenderer>{markdown}</MarkdownRenderer>
-              </article>
+            <div className="flex-1 bg-muted/10 px-4 py-12 overflow-y-auto">
+              <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
+                <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
+              </div>
             </div>
           </div>
         ) : (
