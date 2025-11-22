@@ -1,0 +1,31 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 颜色定义：活力暖橙 -->
+  <g stroke="#F57C00" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    
+    <!-- 字母 b (位置左移，更紧凑) -->
+    <path d="M28 40V70M28 55C28 55 38 53 38 62.5C38 72 28 70 28 70"/>
+    <!-- b 的叶子 -->
+    <path d="M28 45C26 40 23 35 18 38" stroke-width="2"/> 
+    <path d="M18 38C16 33 22 30 26 32C30 34 23 42 18 38Z" fill="#F57C00" stroke="none"/>
+
+    <!-- 字母 l (向左靠拢 b) -->
+    <path d="M44 35V70"/>
+    <!-- l 的叶子 -->
+    <path d="M44 42C47 37 52 34 56 38" stroke-width="2"/>
+    <path d="M56 38C60 36 62 42 58 46C54 48 52 42 56 38Z" fill="#F57C00" stroke="none"/>
+
+    <!-- 字母 o (紧贴 l) -->
+    <circle cx="60" cy="62" r="8"/>
+
+    <!-- 字母 g (紧贴 o，且尾巴内收) -->
+    <!-- g 的上半部分 -->
+    <path d="M76 62C76 57 79 54 83 54C87 54 90 57 90 62V70"/>
+    <path d="M90 62C90 67 87 70 83 70C79 70 76 67 76 62"/>
+    
+    <!-- g 的尾巴 (向左下回环，包住整体) -->
+    <path d="M90 70C90 82 82 86 70 86C65 86 62 82 64 78"/>
+    
+    <!-- 装饰性的小点缀 -->
+    <circle cx="96" cy="48" r="2" fill="#F57C00" stroke="none"/>
+  </g>
+</svg>

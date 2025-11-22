@@ -1,0 +1,366 @@
+@import "tailwindcss";
+/* removing the direct import as it causes MIME type errors, moving to layout.tsx */
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Telegra.ph inspired clean white theme */
+  --background: 0 0% 100%; /* Pure white */
+  --foreground: 0 0% 10%; /* Near black for text */
+
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+
+  --primary: 0 0% 20%; /* Dark gray for primary actions */
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 0 0% 96%; /* Very light gray for secondary backgrounds */
+  --secondary-foreground: 0 0% 20%;
+
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+
+  --accent: 0 0% 96%;
+  --accent-foreground: 0 0% 20%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 10%;
+
+  --radius: 0.5rem;
+
+  /* Chart colors preserved but adjusted slightly for harmony if needed */
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-primary: 0 0% 20%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 0 0% 94%;
+  --sidebar-accent-foreground: 0 0% 20%;
+  --sidebar-border: 0 0% 90%;
+  --sidebar-ring: 0 0% 10%;
+}
+
+.dark {
+  /* Dark mode */
+  --background: 0 0% 10%;
+  --foreground: 0 0% 98%;
+
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 98%;
+
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 98%;
+
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 64%;
+
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 0 0% 83%;
+
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+
+  --sidebar: 0 0% 10%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-primary: 0 0% 98%;
+  --sidebar-primary-foreground: 0 0% 9%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 0 0% 15%;
+  --sidebar-ring: 0 0% 83%;
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-serif: "Georgia", "Cambria", "Times New Roman", "Times", serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  /* Doocs-inspired WeChat Markdown Theme */
+  .prose,
+  article {
+    @apply font-sans text-base leading-7 text-foreground max-w-none;
+    --doocs-primary: #42b983; /* Doocs Green */
+    --doocs-quote-bg: #f8f9fa;
+    --doocs-code-bg: #282c34;
+  }
+
+  /* Headings */
+  .prose h1,
+  article h1 {
+    @apply text-3xl font-bold text-center mt-12 mb-8;
+    color: var(--foreground);
+  }
+
+  .prose h2,
+  article h2 {
+    @apply text-2xl font-bold mt-10 mb-6;
+    color: var(--foreground);
+  }
+
+  .prose h3,
+  article h3 {
+    @apply text-xl font-bold mt-8 mb-4 pl-3 border-l-4;
+    border-color: var(--doocs-primary);
+    color: var(--foreground);
+  }
+
+  .prose h4,
+  article h4 {
+    @apply text-lg font-bold mt-6 mb-3;
+    color: var(--foreground);
+  }
+
+  /* Paragraphs */
+  .prose p,
+  article p {
+    @apply mb-4 text-justify;
+    line-height: 1.75;
+    letter-spacing: 0.02em;
+  }
+
+  /* Links */
+  .prose a,
+  article a {
+    @apply no-underline font-medium;
+    color: var(--doocs-primary);
+    border-bottom: 1px solid var(--doocs-primary);
+    transition: opacity 0.2s;
+  }
+  .prose a:hover,
+  article a:hover {
+    @apply opacity-80;
+  }
+
+  /* Blockquotes */
+  .prose blockquote,
+  article blockquote {
+    @apply my-6 pl-4 py-3 rounded-r-lg border-l-4;
+    background-color: var(--doocs-quote-bg);
+    border-color: var(--doocs-primary);
+    color: var(--muted-foreground);
+    font-style: normal; /* Override italic */
+  }
+
+  .prose blockquote p,
+  article blockquote p {
+    @apply m-0;
+  }
+
+  /* Lists */
+  .prose ul,
+  article ul {
+    @apply list-disc pl-6 mb-4;
+  }
+
+  .prose ol,
+  article ol {
+    @apply list-decimal pl-6 mb-4;
+  }
+
+  .prose li,
+  article li {
+    @apply mb-2;
+  }
+
+  /* Nested lists */
+  .prose ul ul,
+  article ul ul,
+  .prose ol ul,
+  article ol ul,
+  .prose ul ol,
+  article ul ol,
+  .prose ol ol,
+  article ol ol {
+    @apply mt-2 mb-0;
+  }
+
+  /* Code Blocks - Clean Style without Mac header */
+  .prose pre,
+  article pre {
+    @apply relative rounded-lg overflow-auto my-6 p-4 border;
+    background-color: transparent;
+  }
+
+  .prose pre code,
+  article pre code {
+    @apply block overflow-x-auto text-sm font-mono bg-transparent;
+    font-family: "Fira Code", "Consolas", monospace;
+    color: inherit;
+  }
+
+  /* Inline Code */
+  .prose code:not(pre code),
+  article code:not(pre code) {
+    padding: 0.125rem 0.375rem;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    font-family: "Menlo", "Monaco", "Consolas", monospace;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  
+  /* Dark mode inline code adjustment */
+  .dark .prose code:not(pre code),
+  .dark article code:not(pre code) {
+    color: #ff6b6b;
+    background-color: #2c2c2c;
+  }
+
+  /* Images */
+  .prose img,
+  article img {
+    @apply block mx-auto rounded-lg shadow-md my-8 max-w-full h-auto;
+  }
+  
+  /* Horizontal Rule */
+  .prose hr,
+  article hr {
+    @apply my-10 border-none h-px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+  }
+  
+  /* Tables - Ensure proper display */
+  .prose table,
+  article table {
+    @apply w-full border-collapse my-6 text-sm table;
+    display: table !important;
+  }
+  
+  .prose thead,
+  article thead {
+    @apply table-header-group;
+    display: table-header-group !important;
+  }
+  
+  .prose tbody,
+  article tbody {
+    @apply table-row-group;
+    display: table-row-group !important;
+  }
+  
+  .prose tr,
+  article tr {
+    @apply table-row;
+    display: table-row !important;
+  }
+  
+  .prose th,
+  article th {
+    @apply border border-border bg-muted/50 px-4 py-2 font-bold text-left table-cell;
+    display: table-cell !important;
+  }
+  
+  .prose td,
+  article td {
+    @apply border border-border px-4 py-2 table-cell;
+    display: table-cell !important;
+  }
+  
+  .prose tr:nth-child(even),
+  article tr:nth-child(even) {
+    @apply bg-muted/20;
+  }
+  
+  /* Mermaid - Remove background */
+  .prose .mermaid,
+  article .mermaid {
+    @apply my-8;
+    background: transparent !important;
+  }
+  
+  .prose .mermaid svg,
+  article .mermaid svg {
+    @apply mx-auto;
+    background: transparent !important;
+  }
+}
