@@ -1,4 +1,6 @@
 import type React from "react"
+import { ThemeProvider } from "@/components/theme-provider"
+import { BackToTop } from "@/components/back-to-top"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
@@ -54,7 +56,15 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geist.variable} ${geistMono.variable} font-sans antialiased`}>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+        <BackToTop />
         <Analytics />
       </body>
     </html>

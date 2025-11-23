@@ -1,6 +1,6 @@
 "use server"
 
-import { savePost } from "@/lib/posts"
+import { savePost, deletePost } from "@/lib/posts"
 import type { Post } from "@/types"
 import { revalidatePath } from "next/cache"
 import { isAuthenticated } from "@/lib/auth"
@@ -35,4 +35,30 @@ export async function savePostAction(post: Post) {
   revalidatePath("/admin")
   revalidatePath(`/p/${post.slug}`)
   return { success: true }
+}
+
+export async function deletePostAction(slug: string) {
+  if (!(await isAuthenticated())) {
+    throw new Error("Unauthorized")
+  }
+
+  await deletePost(slug)
+  revalidatePath("/admin")
+  return { success: true }
+}
+
+export async function generateExcerptAction(content: string) {
+  if (!(await isAuthenticated())) {
+    throw new Error("Unauthorized")
+  }
+  const excerpt = await generateExcerpt(content)
+  return { excerpt }
+}
+
+export async function generateCoverImageAction(title: string) {
+  if (!(await isAuthenticated())) {
+    throw new Error("Unauthorized")
+  }
+  const url = await generateCoverImage(title)
+  return { url }
 }

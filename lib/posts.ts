@@ -1,4 +1,4 @@
-import { uploadFile, getFile } from "./storage"
+import { uploadFile, getFile, deleteFile } from "./storage"
 import type { Post, PostMeta } from "@/types"
 
 const INDEX_FILE = "posts/index.json"
@@ -43,6 +43,8 @@ export async function savePost(post: Post) {
     title: post.title,
     createdAt: post.createdAt,
     published: post.published,
+    excerpt: post.excerpt,
+    coverImage: post.coverImage,
   }
 
   if (existingIndex >= 0) {
@@ -57,6 +59,12 @@ export async function savePost(post: Post) {
 }
 
 export async function deletePost(slug: string) {
-  // This would require deleting the file and updating the index
-  // For now, we'll just support saving
+  // 1. Delete the post file
+  await deleteFile(`posts/${slug}.json`)
+
+  // 2. Update the index
+  const posts = await getPosts()
+  const newPosts = posts.filter((p) => p.slug !== slug)
+  
+  await uploadFile(INDEX_FILE, JSON.stringify(newPosts), "application/json")
 }

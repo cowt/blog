@@ -170,6 +170,12 @@
     --doocs-code-bg: #282c34;
   }
 
+  .dark .prose,
+  .dark article {
+    --doocs-quote-bg: #1e1e1e;
+    --doocs-code-bg: #282c34;
+  }
+
   /* Headings */
   .prose h1,
   article h1 {
@@ -288,7 +294,7 @@
     font-weight: 400;
     white-space: nowrap;
   }
-  
+
   /* Dark mode inline code adjustment */
   .dark .prose code:not(pre code),
   .dark article code:not(pre code) {
@@ -297,67 +303,72 @@
   }
 
   /* Images */
-  .prose img,
-  article img {
+  .prose img {
     @apply block mx-auto rounded-lg shadow-md my-8 max-w-full h-auto;
   }
-  
+
   /* Horizontal Rule */
   .prose hr,
   article hr {
     @apply my-10 border-none h-px;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+    background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0),
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0)
+    );
   }
-  
+
   /* Tables - Ensure proper display */
   .prose table,
   article table {
     @apply w-full border-collapse my-6 text-sm table;
     display: table !important;
   }
-  
+
   .prose thead,
   article thead {
     @apply table-header-group;
     display: table-header-group !important;
   }
-  
+
   .prose tbody,
   article tbody {
     @apply table-row-group;
     display: table-row-group !important;
   }
-  
+
   .prose tr,
   article tr {
     @apply table-row;
     display: table-row !important;
   }
-  
+
   .prose th,
   article th {
-    @apply border border-border bg-muted/50 px-4 py-2 font-bold text-left table-cell;
+    @apply border border-border bg-muted/50 px-4 py-2 font-bold text-left
+      table-cell;
     display: table-cell !important;
   }
-  
+
   .prose td,
   article td {
     @apply border border-border px-4 py-2 table-cell;
     display: table-cell !important;
   }
-  
+
   .prose tr:nth-child(even),
   article tr:nth-child(even) {
     @apply bg-muted/20;
   }
-  
+
   /* Mermaid - Remove background */
   .prose .mermaid,
   article .mermaid {
     @apply my-8;
     background: transparent !important;
   }
-  
+
   .prose .mermaid svg,
   article .mermaid svg {
     @apply mx-auto;

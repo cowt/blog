@@ -17,6 +17,9 @@ import { format } from "date-fns"
 import { marked } from "marked"
 import { PostArticle } from "@/components/post/article"
 import type { Post } from "@/types"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface EditorProps {
   initialPost?: {
@@ -25,6 +28,8 @@ interface EditorProps {
     content: string
     published: boolean
     createdAt: string
+    excerpt?: string
+    coverImage?: string
   } | null
   newSlug?: string
 }
@@ -41,9 +46,14 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   
   const [markdown, setMarkdown] = useState(initialContent)
   const [slug, setSlug] = useState(initialPost?.slug || newSlug || "")
+  const [excerpt, setExcerpt] = useState(initialPost?.excerpt || "")
+  const [coverImage, setCoverImage] = useState(initialPost?.coverImage || "")
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
+  const isMobile = useIsMobile()
+  const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor")
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const textareaSingleRef = useRef<HTMLTextAreaElement>(null)
@@ -201,6 +211,8 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
         slug: data.slug,
         title: data.title,
         content: markdown,
+        excerpt: excerpt,
+        coverImage: coverImage,
         published: true,
         createdAt: initialPost?.createdAt || new Date().toISOString(),
       })
@@ -224,20 +236,24 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top Bar */}
       <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 border-b bg-background/80 backdrop-blur-sm">
-        <Button variant="ghost" size="sm" onClick={() => router.back()} className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground hidden sm:inline-block">
+          <Button variant="ghost" size="sm" onClick={() => router.back()} className="text-muted-foreground hover:text-foreground px-2 sm:px-4">
+            <ArrowLeft className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <span className="text-sm text-muted-foreground hidden md:inline-block">
             {isSaving ? "Saving..." : "Saved locally"}
           </span>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export
+              <Button variant="ghost" size="sm" className="px-2 sm:px-4">
+                <Download className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -250,16 +266,18 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowPreview(!showPreview)}
-            className={showPreview ? "bg-muted" : ""}
-          >
-            {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-            {showPreview ? "Hide Preview" : "Show Preview"}
-          </Button>
-          <Button onClick={() => setIsPublishModalOpen(true)} disabled={isSaving}>
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className={showPreview ? "bg-muted" : ""}
+            >
+              {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+              {showPreview ? "Hide Preview" : "Show Preview"}
+            </Button>
+          )}
+          <Button onClick={() => setIsPublishModalOpen(true)} disabled={isSaving} size="sm">
             {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Publish
           </Button>
@@ -267,48 +285,72 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
       </div>
 
       {/* Editor Area */}
-      <div className="flex-1">
-        {showPreview ? (
-          <div className="flex gap-4">
-            {/* Left: Editor */}
-            <div className="flex-1 px-4 py-12">
-              <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
+      <div className="flex-1 flex flex-col">
+        {isMobile ? (
+          <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "editor" | "preview")} className="flex-1 flex flex-col">
+            <div className="px-4 py-2 border-b bg-muted/30">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="editor">Editor</TabsTrigger>
+                <TabsTrigger value="preview">Preview</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="editor" className="flex-1 mt-0 p-0">
+              <div className="px-4 py-6">
                 <textarea
                   ref={textareaRefCallback}
+                  className="w-full p-0 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
+                  value={markdown}
+                  onChange={handleTextareaChange}
+                  placeholder="# Your Title\n\nStart writing your markdown content here..."
+                  style={{ minHeight: 'calc(100vh - 200px)' }}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="preview" className="flex-1 mt-0 p-0 bg-muted/10">
+              <div className="px-4 py-6 overflow-y-auto h-full">
+                <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          showPreview ? (
+            <div className="flex gap-4 h-full">
+              {/* Left: Editor */}
+              <div className="flex-1 px-4 py-12 overflow-y-auto">
+                <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
+                  <textarea
+                    ref={textareaRefCallback}
+                    className="w-full p-4 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
+                    value={markdown}
+                    onChange={handleTextareaChange}
+                    placeholder="# Your Title\n\nStart writing your markdown content here..."
+                  />
+                </div>
+              </div>
+              
+              {/* Divider */}
+              <div className="w-px bg-border" />
+              
+              {/* Right: Preview */}
+              <div className="flex-1 bg-muted/10 px-4 py-12 overflow-y-auto">
+                <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
+                  <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 py-12">
+              <div className="max-w-3xl mx-auto">
+                <textarea
+                  ref={textareaSingleRefCallback}
                   className="w-full p-4 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
                   value={markdown}
                   onChange={handleTextareaChange}
-                  placeholder="# Your Title
-
-Start writing your markdown content here..."
+                  placeholder="# Your Title\n\nStart writing your markdown content here..."
                 />
               </div>
             </div>
-            
-            {/* Divider */}
-            <div className="w-px bg-border" />
-            
-            {/* Right: Preview */}
-            <div className="flex-1 bg-muted/10 px-4 py-12 overflow-y-auto">
-              <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
-                <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="px-4 py-12">
-            <div className="max-w-3xl mx-auto">
-              <textarea
-                ref={textareaSingleRefCallback}
-                className="w-full p-4 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
-                value={markdown}
-                onChange={handleTextareaChange}
-                placeholder="# Your Title
-
-Start writing your markdown content here..."
-              />
-            </div>
-          </div>
+          )
         )}
       </div>
 
@@ -329,6 +371,11 @@ Start writing your markdown content here..."
         initialSlug={slug}
         initialTitle={extractedTitle || "Untitled"}
         isSaving={isSaving}
+        excerpt={excerpt}
+        setExcerpt={setExcerpt}
+        coverImage={coverImage}
+        setCoverImage={setCoverImage}
+        content={markdown}
       />
     </div>
   )

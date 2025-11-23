@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { format } from "date-fns"
-import { Edit } from "lucide-react"
+import { Edit, Quote } from "lucide-react"
 import type { Post } from "@/types"
 import { MarkdownRenderer } from "@/components/markdown"
 
@@ -32,9 +32,24 @@ export function PostArticle({
       <div className="max-w-3xl mx-auto">
         {showHeader ? (
           <header className="mb-10 border-b pb-6">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight font-sans text-foreground">
+            <div className="mb-4 overflow-hidden rounded-xl aspect-[2/1] border">
+              <img
+                src={post.coverImage || "/cover.svg"}
+                alt={post.title}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold my-[10px] tracking-tight font-sans text-foreground">
               {post.title}
             </h1>
+            {post.excerpt && (
+              <div className="flex gap-2 items-start text-xs text-muted-foreground bg-muted/40 p-3 rounded-lg mb-6 leading-relaxed">
+                <Quote className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-50" />
+                <p>
+                  {post.excerpt}
+                </p>
+              </div>
+            )}
             <div className="flex items-center justify-between text-muted-foreground font-sans">
               <address className="not-italic">
                 By <span className="text-foreground font-medium">Admin</span>
@@ -61,7 +76,7 @@ export function PostArticle({
         </div>
 
         {showFooter && backLinkHref ? (
-          <div className="mt-20 pt-8 border-t flex justify-center">
+          <div className="mt-20 pt-8 flex justify-center">
             <Link
               href={backLinkHref}
               className="text-muted-foreground hover:text-foreground transition-colors text-sm font-sans"

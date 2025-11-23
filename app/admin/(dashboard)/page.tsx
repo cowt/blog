@@ -12,6 +12,7 @@ import {
 import { format } from "date-fns"
 import { Edit, ExternalLink, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { DeletePostButton } from "@/components/post/delete-post-button"
 
 export default async function AdminDashboard() {
   const posts = await getPosts()
@@ -90,6 +91,7 @@ export default async function AdminDashboard() {
                           <span className="sr-only">Edit</span>
                         </Link>
                       </Button>
+                      <DeletePostButton slug={post.slug} title={post.title} />
                     </div>
                   </TableCell>
                 </TableRow>

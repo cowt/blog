@@ -3,6 +3,7 @@ import { requireAuth, logout } from "@/lib/auth"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LogOut, FileText, Plus, Settings, Sparkles, Database } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default async function DashboardLayout({
   children,
@@ -14,7 +15,10 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <aside className="w-full md:w-64 bg-card border-r border-border p-6 flex flex-col gap-6">
-        <div className="font-serif text-2xl font-bold px-2">Admin</div>
+        <div className="flex items-center justify-between px-2">
+          <div className="font-serif text-2xl font-bold">Admin</div>
+          <ThemeToggle />
+        </div>
 
         <nav className="flex flex-col gap-2 flex-1">
           <Button variant="ghost" className="justify-start gap-2" asChild>

@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import type { S3Config } from "@/types"
 
 // 从环境变量读取默认配置
@@ -212,6 +212,27 @@ export async function listFiles(prefix = "") {
   } catch (error) {
     console.error("Error listing files:", error)
     return []
+  }
+}
+
+export async function deleteFile(key: string) {
+  const client = await getS3Client()
+  
+  if (!client) {
+    console.warn("Storage not configured: Missing S3 configuration")
+    return
+  }
+
+  try {
+    const bucketName = await getBucketName()
+    const command = new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: key,
+    })
+    await client.send(command)
+  } catch (error) {
+    console.error("Error deleting file:", error)
+    throw error
   }
 }
 
