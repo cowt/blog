@@ -38,7 +38,7 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "bblog"
-          entrypoint: "jsr:@deno/nextjs-start/v15"
+          entrypoint: "jsr:@deno/nextjs-start"
           root: "."
-          include: .next, public
+          
           
