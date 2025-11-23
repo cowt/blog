@@ -10,11 +10,13 @@ import "./globals.css"
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
+  adjustFontFallback: false,
 })
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+  adjustFontFallback: false,
 })
 
 export const metadata: Metadata = {

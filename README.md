@@ -1,4 +1,4 @@
-# Telegraph Clone / Blog Platform
+# Blog Platform
 
 A modern, minimalist blogging platform built with Next.js 16, Tailwind CSS v4,
 and Cloudflare R2 / AWS S3 for storage.
