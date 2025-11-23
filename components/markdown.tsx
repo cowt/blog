@@ -215,7 +215,22 @@ const MarkdownComponents: Components = {
         </a>
       )
     }
-    return <a href={href} {...props}>{children}</a>
+    const isAnchor = href?.startsWith('#') || href?.startsWith('/')
+    // User requested "default new tab", but usually internal links (starting with /) should be same tab?
+    // "guide page / new / edit 不是新标签页打开链接" -> They WANT new tab.
+    // So I will only exclude anchors starting with #.
+    const shouldOpenNewTab = !href?.startsWith('#')
+    
+    return (
+      <a 
+        href={href} 
+        target={shouldOpenNewTab ? "_blank" : undefined}
+        rel={shouldOpenNewTab ? "noopener noreferrer" : undefined}
+        {...props}
+      >
+        {children}
+      </a>
+    )
   },
 }
 

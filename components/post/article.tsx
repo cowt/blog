@@ -75,7 +75,7 @@ export function PostArticle({
           <MarkdownRenderer>{post.content}</MarkdownRenderer>
         </div>
 
-        {showFooter && backLinkHref ? (
+        {showFooter && backLinkHref && (post.showInList !== false) ? (
           <div className="mt-20 pt-8 flex justify-center">
             <Link
               href={backLinkHref}

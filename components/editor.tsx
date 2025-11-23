@@ -59,6 +59,63 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   const isMobile = useIsMobile()
   const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor")
   
+  // Local Storage Logic
+  const storageKey = useMemo(() => {
+    if (initialPost?.slug) return `draft_post_${initialPost.slug}`
+    return "draft_post_new"
+  }, [initialPost?.slug])
+
+  // Load from local storage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey)
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        // Only restore if we don't have initial content or if it's a new post
+        // For existing posts, we might want to be careful about overwriting server data with stale local data
+        // But the user asked for "real-time storage", implying they want to pick up where they left off.
+        // A safe bet is to ask or just load it. For now, I'll load it if it exists and differs from initial.
+        
+        // Actually, for a simple "restore draft" feature:
+        if (parsed.content !== initialContent) {
+            // Maybe show a toast or just set it? 
+            // For now, let's just set it if it's a new post or if the user expects it.
+            // Given "real-time storage", I will restore it.
+            setMarkdown(parsed.content || "")
+            if (parsed.title) {
+                // We derive title from markdown, but if we stored other metadata:
+            }
+            if (parsed.excerpt) setExcerpt(parsed.excerpt)
+            if (parsed.coverImage) setCoverImage(parsed.coverImage)
+            if (parsed.tags) setTags(parsed.tags)
+            if (parsed.showInList !== undefined) setShowInList(parsed.showInList)
+            
+            toast.info("Restored draft from local storage")
+        }
+      } catch (e) {
+        console.error("Failed to parse draft", e)
+      }
+    }
+  }, [storageKey, initialContent]) // Run once on mount (and when key changes)
+
+  // Save to local storage on change
+  useEffect(() => {
+    const data = {
+      content: markdown,
+      excerpt,
+      coverImage,
+      tags,
+      showInList,
+      lastSaved: new Date().toISOString()
+    }
+    localStorage.setItem(storageKey, JSON.stringify(data))
+  }, [markdown, excerpt, coverImage, tags, showInList, storageKey])
+
+  // Clear local storage on successful publish
+  const clearDraft = () => {
+    localStorage.removeItem(storageKey)
+  }
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const textareaSingleRef = useRef<HTMLTextAreaElement>(null)
@@ -225,6 +282,7 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
       })
 
       toast.success("Post published!")
+      clearDraft() // Clear local storage
       setIsPublishModalOpen(false)
       router.refresh()
       
