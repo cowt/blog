@@ -2,6 +2,7 @@ import { getPost } from "@/lib/posts"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { PostArticle } from "@/components/post/article"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -25,5 +26,14 @@ export default async function PostPage({
     notFound()
   }
 
-  return <PostArticle post={post} editLinkHref={`/admin/posts/${post.slug}`} backLinkHref="/" />
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="py-4">
+        <div className="container max-w-3xl mx-auto px-4 flex justify-end items-center">
+          <ThemeToggle />
+        </div>
+      </header>
+      <PostArticle post={post} editLinkHref={`/admin/posts/${post.slug}`} backLinkHref="/" />
+    </div>
+  )
 }

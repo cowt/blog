@@ -45,9 +45,9 @@ export function PostArticle({
             {post.excerpt && (
               <div className="flex gap-2 items-start text-xs text-muted-foreground bg-muted/40 p-3 rounded-lg mb-6 leading-relaxed">
                 <Quote className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-50" />
-                <p>
-                  {post.excerpt}
-                </p>
+                <div className="text-sm">
+                  <MarkdownRenderer>{post.excerpt}</MarkdownRenderer>
+                </div>
               </div>
             )}
             <div className="flex items-center justify-between text-muted-foreground font-sans">
