@@ -217,6 +217,8 @@
     color: var(--doocs-primary);
     border-bottom: 1px solid var(--doocs-primary);
     transition: opacity 0.2s;
+    scroll-margin-top: 45vh; 
+    display: inline-block;
   }
   .prose a:hover,
   article a:hover {
@@ -373,5 +375,188 @@
   article .mermaid svg {
     @apply mx-auto;
     background: transparent !important;
+  }
+
+  /* Collapsible Details */
+  .prose details,
+  article details {
+    @apply my-4 rounded-lg border border-border overflow-hidden;
+    background-color: hsl(var(--muted) / 0.3);
+  }
+
+  .prose summary,
+  article summary {
+    @apply cursor-pointer px-4 py-3 font-medium select-none;
+    transition: background-color 0.2s;
+  }
+
+  .prose summary:hover,
+  article summary:hover {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+
+  .prose details[open] summary,
+  article details[open] summary {
+    @apply border-b border-border;
+  }
+
+  .prose details > *:not(summary),
+  article details > *:not(summary) {
+    @apply px-4 py-3;
+  }
+
+  .prose details > ul,
+  article details > ul,
+  .prose details > ol,
+  article details > ol {
+    @apply pl-6 pr-4;
+  }
+
+  /* Task Lists - Enhanced specificity to remove bullets */
+  .prose ul:has(input[type="checkbox"]),
+  article ul:has(input[type="checkbox"]) {
+    @apply list-none pl-0;
+    list-style-type: none !important;
+  }
+
+  .prose ul:has(input[type="checkbox"]) li,
+  article ul:has(input[type="checkbox"]) li {
+    list-style: none !important;
+  }
+
+  .prose li:has(> input[type="checkbox"]),
+  article li:has(> input[type="checkbox"]) {
+    @apply flex items-start gap-2 flex-wrap;
+    list-style: none !important;
+  }
+
+  .prose li:has(> input[type="checkbox"])::before,
+  article li:has(> input[type="checkbox"])::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  .prose li:has(> input[type="checkbox"]) > ul,
+  .prose li:has(> input[type="checkbox"]) > ol,
+  article li:has(> input[type="checkbox"]) > ul,
+  article li:has(> input[type="checkbox"]) > ol {
+    @apply w-full mt-2 pl-6;
+  }
+
+  .prose input[type="checkbox"],
+  article input[type="checkbox"] {
+    @apply mt-1.5 cursor-default;
+    accent-color: var(--doocs-primary);
+  }
+
+  /* Strikethrough - GFM already supports, just style */
+  .prose del,
+  article del {
+    @apply text-muted-foreground;
+    text-decoration-thickness: 2px;
+  }
+
+  /* Definition Lists */
+  .prose dl,
+  article dl {
+    @apply my-6;
+  }
+
+  .prose dt,
+  article dt {
+    @apply font-bold mt-4 mb-1;
+    color: var(--foreground);
+  }
+
+  .prose dd,
+  article dd {
+    @apply ml-6 mb-2;
+    color: var(--muted-foreground);
+  }
+
+  /* Highlight */
+  .prose mark,
+  article mark {
+    @apply px-1 rounded;
+    background-color: #fef08a;
+  }
+
+  .dark .prose mark,
+  .dark article mark {
+    background-color: rgba(234, 179, 8, 0.3);
+  }
+
+  /* Subscript and Superscript */
+  .prose sub,
+  article sub {
+    @apply text-xs;
+    vertical-align: sub;
+  }
+
+  .prose sup:not(.footnote-ref),
+  article sup:not(.footnote-ref) {
+    @apply text-xs;
+    vertical-align: super;
+  }
+
+  /* Footnotes - Enhanced with visual separator and label */
+  .prose .footnotes,
+  article .footnotes {
+    @apply mt-12 pt-8 border-t-2 text-sm;
+    border-color: hsl(var(--primary) / 0.2);
+    position: relative;
+  }
+
+  .prose .footnotes::before,
+  article .footnotes::before {
+    content: "📝 脚注";
+    @apply absolute -top-3 left-0 bg-background px-2 text-xs font-bold;
+    color: hsl(var(--primary));
+  }
+
+  .prose .footnote-ref,
+  article .footnote-ref {
+    @apply text-primary no-underline font-bold;
+    scroll-margin-top: 45vh; 
+    display: inline-block;
+  }
+
+  .prose .footnote-ref a,
+  article .footnote-ref a {
+    @apply px-1 hover:underline;
+  }
+
+  .prose .footnote-backref,
+  article .footnote-backref {
+    @apply ml-2 text-primary no-underline hover:underline;
+  }
+
+  .prose .footnotes ol,
+  article .footnotes ol {
+    @apply pl-6;
+  }
+
+  .prose .footnotes li,
+  article .footnotes li {
+    @apply mb-2;
+    scroll-margin-top: 100px;
+  }
+
+  /* Highlight animation for jump targets */
+  .highlight-target {
+    @apply bg-primary/10 rounded px-2 py-1;
+    animation: highlight-pulse 2s ease-in-out;
+  }
+
+  @keyframes highlight-pulse {
+    0%, 100% { 
+      background-color: transparent; 
+    }
+    25%, 75% { 
+      background-color: hsl(var(--primary) / 0.15); 
+    }
+    50% { 
+      background-color: hsl(var(--primary) / 0.25); 
+    }
   }
 }

@@ -85,3 +85,57 @@ export async function generateCoverImage(title: string): Promise<string | null> 
     return null
   }
 }
+
+// 生成文章标签
+export async function generateTags(content: string): Promise<string[]> {
+  try {
+    const config = await getAIConfig()
+    
+    if (!config.autoGenerateTags || !config.apiKey) {
+      return []
+    }
+
+    const openai = new OpenAI({
+      baseURL: config.baseURL,
+      apiKey: config.apiKey,
+    })
+
+    const prompt = config.tagsPrompt.replace("{content}", content.slice(0, 3000)) // 限制内容长度
+
+    const completion = await openai.chat.completions.create({
+      model: config.model || "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 100,
+    })
+
+    const responseText = completion.choices[0]?.message?.content?.trim()
+    if (!responseText) return []
+
+    // 尝试解析 JSON 数组
+    try {
+      const tags = JSON.parse(responseText)
+      if (Array.isArray(tags)) {
+        return tags.filter((tag): tag is string => typeof tag === "string").slice(0, 5)
+      }
+    } catch {
+      // 如果不是 JSON，尝试按逗号分割
+      return responseText
+        .split(/[,，]/)
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+        .slice(0, 5)
+    }
+
+    return []
+  } catch (error) {
+    console.error("Error generating tags:", error)
+    return []
+  }
+}
+

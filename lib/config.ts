@@ -14,8 +14,10 @@ const DEFAULT_AI_CONFIG: AIConfig = {
   model: "gpt-4o-mini",
   autoGenerateExcerpt: false,
   autoGenerateCoverImage: false,
+  autoGenerateTags: false,
   excerptPrompt: "请为以下文章生成一段简洁的摘要(100-150字),用于SEO和列表预览:\n\n{content}",
   coverImagePrompt: "Generate a beautiful cover image for a blog post with the following title: {title}",
+  tagsPrompt: "Based on the following blog post content, suggest 3-5 relevant tags. Return only the tags as a JSON array of strings, without any explanation.\n\nContent:\n{content}",
 }
 
 // 默认主题配置

@@ -13,6 +13,7 @@ import { format } from "date-fns"
 import { Edit, ExternalLink, Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DeletePostButton } from "@/components/post/delete-post-button"
+import { UnpublishPostButton } from "@/components/post/unpublish-post-button"
 
 export default async function AdminDashboard() {
   const posts = await getPosts()
@@ -55,11 +56,20 @@ export default async function AdminDashboard() {
               posts.map((post) => (
                 <TableRow key={post.slug}>
                   <TableCell className="font-medium">
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-2">
                       <span className="text-base">{post.title || "Untitled"}</span>
-                      <span className="text-xs text-muted-foreground font-mono mt-1">
+                      <span className="text-xs text-muted-foreground font-mono">
                         {post.slug}
                       </span>
+                      {post.tags && post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {post.tags.map((tag) => (
+                            <Badge key={tag} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -91,6 +101,9 @@ export default async function AdminDashboard() {
                           <span className="sr-only">Edit</span>
                         </Link>
                       </Button>
+                      {post.published && (
+                        <UnpublishPostButton slug={post.slug} title={post.title} />
+                      )}
                       <DeletePostButton slug={post.slug} title={post.title} />
                     </div>
                   </TableCell>

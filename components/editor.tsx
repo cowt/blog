@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ArrowLeft, Loader2, Eye, EyeOff, Download } from "lucide-react"
+import { ArrowLeft, Loader2, Eye, EyeOff, Download, BookOpen } from "lucide-react"
 import { PublishModal } from "./editor/publish-modal"
 import { format } from "date-fns"
 import { marked } from "marked"
@@ -20,6 +20,7 @@ import type { Post } from "@/types"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 
 interface EditorProps {
   initialPost?: {
@@ -30,6 +31,8 @@ interface EditorProps {
     createdAt: string
     excerpt?: string
     coverImage?: string
+    showInList?: boolean
+    tags?: string[]
   } | null
   newSlug?: string
 }
@@ -48,6 +51,8 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   const [slug, setSlug] = useState(initialPost?.slug || newSlug || "")
   const [excerpt, setExcerpt] = useState(initialPost?.excerpt || "")
   const [coverImage, setCoverImage] = useState(initialPost?.coverImage || "")
+  const [showInList, setShowInList] = useState(initialPost?.showInList ?? true)
+  const [tags, setTags] = useState<string[]>(initialPost?.tags || [])
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
   const [showPreview, setShowPreview] = useState(true)
@@ -213,6 +218,8 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
         content: markdown,
         excerpt: excerpt,
         coverImage: coverImage,
+        showInList: showInList,
+        tags: tags,
         published: true,
         createdAt: initialPost?.createdAt || new Date().toISOString(),
       })
@@ -241,6 +248,12 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
             <ArrowLeft className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Back</span>
           </Button>
+          <Link href="/guide" target="_blank">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground px-2 sm:px-4">
+              <BookOpen className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Guide</span>
+            </Button>
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
@@ -375,6 +388,10 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
         setExcerpt={setExcerpt}
         coverImage={coverImage}
         setCoverImage={setCoverImage}
+        showInList={showInList}
+        setShowInList={setShowInList}
+        tags={tags}
+        setTags={setTags}
         content={markdown}
       />
     </div>

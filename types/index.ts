@@ -8,6 +8,7 @@ export interface PostMeta {
   coverImage?: string // 封面图 URL
   updatedAt?: string // 最后更新时间
   readingTime?: number // 预估阅读时间 (分钟)
+  showInList?: boolean // 是否在根目录列表中显示，默认 true
   
   // 扩展字段 - 分类与标签
   tags?: string[] // 标签列表
@@ -75,8 +76,10 @@ export interface AIConfig {
   model?: string
   autoGenerateExcerpt: boolean
   autoGenerateCoverImage: boolean
+  autoGenerateTags: boolean
   excerptPrompt: string
   coverImagePrompt: string
+  tagsPrompt: string
 }
 
 // S3/R2 存储配置

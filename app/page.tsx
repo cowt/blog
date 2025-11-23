@@ -4,8 +4,8 @@ import { PostList } from "@/components/post/post-list"
 
 
 export default async function Home() {
-  // Only show published posts
-  const posts = (await getPosts()).filter((p) => p.published)
+  // Only show published posts that are set to show in list (default true)
+  const posts = (await getPosts()).filter((p) => p.published && p.showInList !== false)
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

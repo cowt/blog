@@ -45,6 +45,8 @@ export async function savePost(post: Post) {
     published: post.published,
     excerpt: post.excerpt,
     coverImage: post.coverImage,
+    showInList: post.showInList,
+    tags: post.tags,
   }
 
   if (existingIndex >= 0) {
@@ -56,6 +58,27 @@ export async function savePost(post: Post) {
   await uploadFile(INDEX_FILE, JSON.stringify(posts), "application/json")
 
   return post
+}
+
+export async function unpublishPost(slug: string) {
+  // 1. Get the post
+  const post = await getPost(slug)
+  if (!post) {
+    throw new Error("Post not found")
+  }
+
+  // 2. Update published status
+  post.published = false
+  await uploadFile(`posts/${slug}.json`, JSON.stringify(post), "application/json")
+
+  // 3. Update the index
+  const posts = await getPosts()
+  const existingIndex = posts.findIndex((p) => p.slug === slug)
+  
+  if (existingIndex >= 0) {
+    posts[existingIndex].published = false
+    await uploadFile(INDEX_FILE, JSON.stringify(posts), "application/json")
+  }
 }
 
 export async function deletePost(slug: string) {

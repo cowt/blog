@@ -18,8 +18,10 @@ export default function AIConfigPage() {
     model: "gpt-4o-mini",
     autoGenerateExcerpt: false,
     autoGenerateCoverImage: false,
+    autoGenerateTags: false,
     excerptPrompt: "请为以下文章生成一段简洁的摘要(100-150字),用于SEO和列表预览:\n\n{content}",
     coverImagePrompt: "Generate a beautiful cover image for a blog post with the following title: {title}",
+    tagsPrompt: "Based on the following blog post content, suggest 3-5 relevant tags. Return only the tags as a JSON array of strings, without any explanation.\n\nContent:\n{content}",
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -212,6 +214,40 @@ export default function AIConfigPage() {
               />
               <p className="text-xs text-muted-foreground">
                 使用 {"{title}"} 作为文章标题的占位符
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="autoGenerateTags">自动生成标签</Label>
+              <p className="text-sm text-muted-foreground">
+                发布文章时自动生成文章标签
+              </p>
+            </div>
+            <Switch
+              id="autoGenerateTags"
+              checked={config.autoGenerateTags}
+              onCheckedChange={(checked) =>
+                setConfig({ ...config, autoGenerateTags: checked })
+              }
+            />
+          </div>
+
+          {config.autoGenerateTags && (
+            <div className="space-y-2">
+              <Label htmlFor="tagsPrompt">标签生成提示词</Label>
+              <Textarea
+                id="tagsPrompt"
+                value={config.tagsPrompt}
+                onChange={(e) =>
+                  setConfig({ ...config, tagsPrompt: e.target.value })
+                }
+                placeholder="Based on the following blog post content, suggest 3-5 relevant tags..."
+                rows={5}
+              />
+              <p className="text-xs text-muted-foreground">
+                使用 {"{ content}"} 作为文章内容的占位符。建议要求 AI 返回 JSON 数组格式。
               </p>
             </div>
           )}
