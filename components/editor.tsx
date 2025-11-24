@@ -67,24 +67,15 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
 
   // Load from local storage on mount
   useEffect(() => {
+    // Only restore draft for new posts
+    if (initialPost) return
+
     const saved = localStorage.getItem(storageKey)
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        // Only restore if we don't have initial content or if it's a new post
-        // For existing posts, we might want to be careful about overwriting server data with stale local data
-        // But the user asked for "real-time storage", implying they want to pick up where they left off.
-        // A safe bet is to ask or just load it. For now, I'll load it if it exists and differs from initial.
-        
-        // Actually, for a simple "restore draft" feature:
         if (parsed.content !== initialContent) {
-            // Maybe show a toast or just set it? 
-            // For now, let's just set it if it's a new post or if the user expects it.
-            // Given "real-time storage", I will restore it.
             setMarkdown(parsed.content || "")
-            if (parsed.title) {
-                // We derive title from markdown, but if we stored other metadata:
-            }
             if (parsed.excerpt) setExcerpt(parsed.excerpt)
             if (parsed.coverImage) setCoverImage(parsed.coverImage)
             if (parsed.tags) setTags(parsed.tags)
@@ -96,7 +87,7 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
         console.error("Failed to parse draft", e)
       }
     }
-  }, [storageKey, initialContent]) // Run once on mount (and when key changes)
+  }, [storageKey, initialContent, initialPost]) // Run once on mount (and when key changes)
 
   // Save to local storage on change
   useEffect(() => {
@@ -440,7 +431,7 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
         onOpenChange={setIsPublishModalOpen}
         onPublish={handlePublish}
         initialSlug={slug}
-        initialTitle={extractedTitle || "Untitled"}
+        initialTitle={extractedTitle || initialTitle || "Untitled"}
         isSaving={isSaving}
         excerpt={excerpt}
         setExcerpt={setExcerpt}

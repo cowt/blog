@@ -25,7 +25,7 @@ export function PostArticle({
 }: PostArticleProps) {
   const publishedText = post.createdAt ? format(new Date(post.createdAt), "MMMM d, yyyy") : null
   const outerClass =
-    variant === "embedded" ? "bg-background p-6 md:p-8" : "min-h-screen bg-background py-12 px-4 md:px-6"
+    variant === "embedded" ? "bg-background p-6 md:p-8" : "min-h-screen bg-background pt-0 pb-12 px-4 md:px-6"
 
   return (
     <article className={outerClass}>

@@ -165,7 +165,7 @@ const MarkdownComponents: Components = {
   ),
   // Highlight text
   mark: ({ children, ...props }) => (
-    <mark className="bg-yellow-200 dark:bg-yellow-900/50 px-1 rounded" {...props}>
+    <mark className="bg-yellow-200 dark:bg-yellow-500/40 px-1 rounded" {...props}>
       {children}
     </mark>
   ),

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { PostArticle } from "@/components/post/article"
 import { ThemeToggle } from "@/components/theme-toggle"
+import Link from "next/link"
+import Image from "next/image"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -29,7 +31,16 @@ export default async function PostPage({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="py-4">
-        <div className="container max-w-3xl mx-auto px-4 flex justify-end items-center">
+        <div className="container max-w-3xl mx-auto px-4 flex justify-between items-center">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Image
+              src="/icon.png"
+              alt="Home"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg"
+            />
+          </Link>
           <ThemeToggle />
         </div>
       </header>
