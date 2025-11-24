@@ -16,8 +16,6 @@ export default function AIConfigPage() {
     baseURL: "https://api.openai.com/v1",
     apiKey: "",
     model: "gpt-4o-mini",
-    autoGenerateExcerpt: false,
-    autoGenerateCoverImage: false,
     autoGenerateTags: false,
     excerptPrompt: "请为以下文章生成一段简洁的摘要(100-150字),用于SEO和列表预览:\n\n{content}",
     coverImagePrompt: "Generate a beautiful cover image for a blog post with the following title: {title}",
@@ -152,71 +150,35 @@ export default function AIConfigPage() {
           <CardDescription>配置自动生成功能的开关和提示词</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="autoGenerateExcerpt">自动生成摘要</Label>
-              <p className="text-sm text-muted-foreground">
-                发布文章时自动生成文章摘要
-              </p>
-            </div>
-            <Switch
-              id="autoGenerateExcerpt"
-              checked={config.autoGenerateExcerpt}
-              onCheckedChange={(checked) =>
-                setConfig({ ...config, autoGenerateExcerpt: checked })
-              }
+          <div className="space-y-2">
+            <Label htmlFor="excerptPrompt">摘要生成提示词</Label>
+            <Textarea
+              id="excerptPrompt"
+              value={config.excerptPrompt}
+              onChange={(e) => setConfig({ ...config, excerptPrompt: e.target.value })}
+              placeholder="请为以下文章生成一段简洁的摘要..."
+              rows={4}
             />
+            <p className="text-xs text-muted-foreground">
+              使用 {"{content}"} 作为文章内容的占位符
+            </p>
           </div>
 
-          {config.autoGenerateExcerpt && (
-            <div className="space-y-2">
-              <Label htmlFor="excerptPrompt">摘要生成提示词</Label>
-              <Textarea
-                id="excerptPrompt"
-                value={config.excerptPrompt}
-                onChange={(e) => setConfig({ ...config, excerptPrompt: e.target.value })}
-                placeholder="请为以下文章生成一段简洁的摘要..."
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground">
-                使用 {"{content}"} 作为文章内容的占位符
-              </p>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="autoGenerateCoverImage">自动生成封面图</Label>
-              <p className="text-sm text-muted-foreground">
-                发布文章时自动生成封面图(使用 DALL-E)
-              </p>
-            </div>
-            <Switch
-              id="autoGenerateCoverImage"
-              checked={config.autoGenerateCoverImage}
-              onCheckedChange={(checked) =>
-                setConfig({ ...config, autoGenerateCoverImage: checked })
+          <div className="space-y-2">
+            <Label htmlFor="coverImagePrompt">封面图生成提示词</Label>
+            <Textarea
+              id="coverImagePrompt"
+              value={config.coverImagePrompt}
+              onChange={(e) =>
+                setConfig({ ...config, coverImagePrompt: e.target.value })
               }
+              placeholder="Generate a beautiful cover image..."
+              rows={4}
             />
+            <p className="text-xs text-muted-foreground">
+              使用 {"{title}"} 作为文章标题的占位符
+            </p>
           </div>
-
-          {config.autoGenerateCoverImage && (
-            <div className="space-y-2">
-              <Label htmlFor="coverImagePrompt">封面图生成提示词</Label>
-              <Textarea
-                id="coverImagePrompt"
-                value={config.coverImagePrompt}
-                onChange={(e) =>
-                  setConfig({ ...config, coverImagePrompt: e.target.value })
-                }
-                placeholder="Generate a beautiful cover image..."
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground">
-                使用 {"{title}"} 作为文章标题的占位符
-              </p>
-            </div>
-          )}
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">

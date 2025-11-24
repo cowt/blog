@@ -12,8 +12,6 @@ const DEFAULT_AI_CONFIG: AIConfig = {
   baseURL: "https://api.openai.com/v1",
   apiKey: "",
   model: "gpt-4o-mini",
-  autoGenerateExcerpt: false,
-  autoGenerateCoverImage: false,
   autoGenerateTags: false,
   excerptPrompt: "请为以下文章生成一段简洁的摘要(100-150字),用于SEO和列表预览:\n\n{content}",
   coverImagePrompt: "Generate a beautiful cover image for a blog post with the following title: {title}",
@@ -23,10 +21,10 @@ const DEFAULT_AI_CONFIG: AIConfig = {
 // 默认主题配置
 const DEFAULT_THEME_CONFIG: ThemeConfig = {
   siteName: "My Blog",
-  siteDescription: "A personal blog built with Next.js",
+  siteDescription: "A personal blog",
   siteUrl: "",
-  logo: "",
-  favicon: "",
+  logo: "/logo.svg",
+  favicon: "/logo.svg",
   theme: {
     primaryColor: "#000000",
     fontFamily: "system-ui",
@@ -48,7 +46,20 @@ export async function getThemeConfig(): Promise<ThemeConfig> {
   try {
     const json = await getFile(THEME_CONFIG_FILE)
     if (!json) return DEFAULT_THEME_CONFIG
-    return { ...DEFAULT_THEME_CONFIG, ...JSON.parse(json) }
+    
+    const storedConfig = JSON.parse(json)
+    // Merge configs, but use default values for empty strings
+    return {
+      siteName: storedConfig.siteName || DEFAULT_THEME_CONFIG.siteName,
+      siteDescription: storedConfig.siteDescription || DEFAULT_THEME_CONFIG.siteDescription,
+      siteUrl: storedConfig.siteUrl || DEFAULT_THEME_CONFIG.siteUrl,
+      logo: storedConfig.logo || DEFAULT_THEME_CONFIG.logo,
+      favicon: storedConfig.favicon || DEFAULT_THEME_CONFIG.favicon,
+      theme: {
+        primaryColor: storedConfig.theme?.primaryColor || DEFAULT_THEME_CONFIG.theme?.primaryColor,
+        fontFamily: storedConfig.theme?.fontFamily || DEFAULT_THEME_CONFIG.theme?.fontFamily,
+      },
+    }
   } catch (e) {
     console.error("Error fetching theme config:", e)
     return DEFAULT_THEME_CONFIG

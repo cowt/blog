@@ -1,0 +1,11 @@
+{
+  "siteName": "My Blog",
+  "siteDescription": "A personal blog",
+  "siteUrl": "",
+  "logo": "/logo.svg",
+  "favicon": "/logo.svg",
+  "theme": {
+    "primaryColor": "#000000",
+    "fontFamily": "system-ui"
+  }
+}

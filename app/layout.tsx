@@ -19,27 +19,32 @@ const geistMono = Geist_Mono({
   adjustFontFallback: false,
 })
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "A simple blog",
-  generator: "Next.js",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
+import { getThemeConfig } from "@/lib/config"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const themeConfig = await getThemeConfig()
+  return {
+    title: themeConfig.siteName,
+    description: themeConfig.siteDescription,
+    generator: "Next.js",
+    icons: {
+      icon: [
+        {
+          url: "/icon-light-32x32.png",
+          media: "(prefers-color-scheme: light)",
+        },
+        {
+          url: "/icon-dark-32x32.png",
+          media: "(prefers-color-scheme: dark)",
+        },
+        {
+          url: themeConfig.favicon || "/icon.svg",
+          type: "image/svg+xml",
+        },
+      ],
+      apple: "/apple-icon.png",
+    },
+  }
 }
 
 export default function RootLayout({

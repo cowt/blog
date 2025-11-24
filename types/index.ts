@@ -74,8 +74,6 @@ export interface AIConfig {
   baseURL: string
   apiKey: string
   model?: string
-  autoGenerateExcerpt: boolean
-  autoGenerateCoverImage: boolean
   autoGenerateTags: boolean
   excerptPrompt: string
   coverImagePrompt: string
