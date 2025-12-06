@@ -29,6 +29,13 @@ const DEFAULT_THEME_CONFIG: ThemeConfig = {
     primaryColor: "#000000",
     fontFamily: "system-ui",
   },
+  announcement: {
+    enabled: false,
+    message: "",
+    scrolling: false,
+    dismissible: true,
+    type: "info",
+  },
 }
 
 // 默认 S3 配置
@@ -59,6 +66,7 @@ export async function getThemeConfig(): Promise<ThemeConfig> {
         primaryColor: storedConfig.theme?.primaryColor || DEFAULT_THEME_CONFIG.theme?.primaryColor,
         fontFamily: storedConfig.theme?.fontFamily || DEFAULT_THEME_CONFIG.theme?.fontFamily,
       },
+      announcement: storedConfig.announcement ?? DEFAULT_THEME_CONFIG.announcement,
     }
   } catch (e) {
     console.error("Error fetching theme config:", e)

@@ -56,6 +56,17 @@ export interface PostInteractions {
   comments: Comment[]
 }
 
+// 公告横幅配置
+export interface AnnouncementBanner {
+  enabled: boolean
+  message: string
+  link?: string
+  linkText?: string
+  type?: "info" | "warning" | "error" | "success"
+  scrolling?: boolean // 是否滚动
+  dismissible?: boolean // 是否可关闭
+}
+
 // 网站主题配置
 export interface ThemeConfig {
   siteName?: string
@@ -67,6 +78,7 @@ export interface ThemeConfig {
     primaryColor?: string
     fontFamily?: string
   }
+  announcement?: AnnouncementBanner
 }
 
 // AI 相关配置

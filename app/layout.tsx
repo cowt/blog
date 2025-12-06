@@ -1,6 +1,7 @@
 import type React from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { BackToTop } from "@/components/back-to-top"
+import { AnnouncementBannerComponent } from "@/components/announcement-banner"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
@@ -47,11 +48,13 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const themeConfig = await getThemeConfig()
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -69,6 +72,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {themeConfig.announcement && (
+            <AnnouncementBannerComponent config={themeConfig.announcement} />
+          )}
           {children}
         </ThemeProvider>
         <BackToTop />

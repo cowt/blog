@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import type { ThemeConfig } from "@/types"
@@ -20,6 +22,15 @@ export default function ThemeConfigPage() {
     theme: {
       primaryColor: "#000000",
       fontFamily: "system-ui",
+    },
+    announcement: {
+      enabled: false,
+      message: "",
+      link: "",
+      linkText: "",
+      type: "info",
+      scrolling: false,
+      dismissible: true,
     },
   })
   const [loading, setLoading] = useState(true)
@@ -192,6 +203,131 @@ export default function ThemeConfigPage() {
                 })
               }
               placeholder="system-ui"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>公告横幅</CardTitle>
+          <CardDescription>在网站顶部显示公告信息</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="announcementEnabled">启用公告</Label>
+            <Switch
+              id="announcementEnabled"
+              checked={config.announcement?.enabled || false}
+              onCheckedChange={(checked) =>
+                setConfig({
+                  ...config,
+                  announcement: { ...config.announcement, enabled: checked, message: config.announcement?.message || "" },
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="announcementMessage">公告内容</Label>
+            <Input
+              id="announcementMessage"
+              value={config.announcement?.message || ""}
+              onChange={(e) =>
+                setConfig({
+                  ...config,
+                  announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: e.target.value },
+                })
+              }
+              placeholder="输入公告内容..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="announcementLink">链接地址（可选）</Label>
+              <Input
+                id="announcementLink"
+                value={config.announcement?.link || ""}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: config.announcement?.message || "", link: e.target.value },
+                  })
+                }
+                placeholder="https://..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="announcementLinkText">链接文字（可选）</Label>
+              <Input
+                id="announcementLinkText"
+                value={config.announcement?.linkText || ""}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: config.announcement?.message || "", linkText: e.target.value },
+                  })
+                }
+                placeholder="了解更多"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="announcementType">公告类型</Label>
+            <Select
+              value={config.announcement?.type || "info"}
+              onValueChange={(value: "info" | "warning" | "error" | "success") =>
+                setConfig({
+                  ...config,
+                  announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: config.announcement?.message || "", type: value },
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="info">信息（蓝色）</SelectItem>
+                <SelectItem value="success">成功（绿色）</SelectItem>
+                <SelectItem value="warning">警告（黄色）</SelectItem>
+                <SelectItem value="error">错误（红色）</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="announcementScrolling">滚动效果</Label>
+              <p className="text-sm text-muted-foreground">启用后公告文字会滚动显示</p>
+            </div>
+            <Switch
+              id="announcementScrolling"
+              checked={config.announcement?.scrolling || false}
+              onCheckedChange={(checked) =>
+                setConfig({
+                  ...config,
+                  announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: config.announcement?.message || "", scrolling: checked },
+                })
+              }
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="announcementDismissible">允许关闭</Label>
+              <p className="text-sm text-muted-foreground">用户可以点击关闭按钮隐藏公告</p>
+            </div>
+            <Switch
+              id="announcementDismissible"
+              checked={config.announcement?.dismissible !== false}
+              onCheckedChange={(checked) =>
+                setConfig({
+                  ...config,
+                  announcement: { ...config.announcement, enabled: config.announcement?.enabled || false, message: config.announcement?.message || "", dismissible: checked },
+                })
+              }
             />
           </div>
         </CardContent>
