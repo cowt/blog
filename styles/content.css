@@ -251,9 +251,11 @@
    ============================================ */
 /* 行内代码 */
 .content-body code:not(pre code) {
-  @apply px-1.5 py-0.5 mx-0.5 rounded text-sm font-mono whitespace-nowrap;
+  @apply px-1.5 py-0.5 mx-0.5 rounded text-sm font-mono;
   color: #c7254e;
   background-color: #f9f2f4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .dark .content-body code:not(pre code) {
