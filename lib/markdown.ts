@@ -1,56 +1,58 @@
-const SUMMARY_PATTERN = /^::>\s*(.*)$/
-const CLOSING_PATTERN = /^::>\s*$/
-const FALLBACK_SUMMARY = "点击展开"
+// Markdown utilities
 
-const escapeHtml = (value: string) =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
-
+/**
+ * 预处理 Markdown 内容
+ * - 转换上标语法 ^text^ -> <sup>text</sup>
+ * - 转换下标语法 ~text~ -> <sub>text</sub>
+ * - 注意：需要在 remark-gfm 处理删除线之前转换
+ */
 export function convertCollapsibleShortcodes(markdown: string) {
-  const lines = markdown.split("\n")
-  const output: string[] = []
-  let index = 0
+  let result = markdown
 
-  while (index < lines.length) {
-    const line = lines[index]
-    const summaryMatch = line.match(SUMMARY_PATTERN)
+  // 保护代码块，避免内部被转换
+  const codeBlocks: string[] = []
+  result = result.replace(/```[\s\S]*?```/g, (match) => {
+    const index = codeBlocks.length
+    codeBlocks.push(match)
+    return `__CODE_BLOCK_${index}__`
+  })
 
-    if (!summaryMatch) {
-      output.push(line)
-      index++
-      continue
-    }
+  // 保护行内代码
+  const inlineCodes: string[] = []
+  result = result.replace(/`[^`]+`/g, (match) => {
+    const index = inlineCodes.length
+    inlineCodes.push(match)
+    return `__INLINE_CODE_${index}__`
+  })
 
-    const summaryText = (summaryMatch[1] || "").trim()
-    const collected: string[] = []
-    index++
-    let foundClosing = false
+  // 先保护删除线 ~~text~~ 避免被下标匹配
+  const strikethroughs: string[] = []
+  result = result.replace(/~~([^~]+)~~/g, (match) => {
+    const index = strikethroughs.length
+    strikethroughs.push(match)
+    return `__STRIKE_${index}__`
+  })
 
-    while (index < lines.length) {
-      const probe = lines[index]
-      if (probe.match(CLOSING_PATTERN)) {
-        foundClosing = true
-        index++
-        break
-      }
-      collected.push(probe)
-      index++
-    }
+  // 转换上标 ^text^ -> <sup>text</sup>
+  result = result.replace(/\^([^^]+)\^/g, '<sup>$1</sup>')
 
-    if (!foundClosing) {
-      output.push(line, ...collected)
-      continue
-    }
+  // 转换下标 ~text~ -> <sub>text</sub>
+  result = result.replace(/~([^~]+)~/g, '<sub>$1</sub>')
 
-    const summary = escapeHtml(summaryText || FALLBACK_SUMMARY)
-    output.push("<details>")
-    output.push(`<summary>${summary}</summary>`)
-    output.push("")
-    if (collected.length > 0) {
-      output.push(collected.join("\n"))
-    }
-    output.push("")
-    output.push("</details>")
-  }
+  // 恢复删除线
+  strikethroughs.forEach((strike, index) => {
+    result = result.replace(`__STRIKE_${index}__`, strike)
+  })
 
-  return output.join("\n")
+  // 恢复行内代码
+  inlineCodes.forEach((code, index) => {
+    result = result.replace(`__INLINE_CODE_${index}__`, code)
+  })
+
+  // 恢复代码块
+  codeBlocks.forEach((block, index) => {
+    result = result.replace(`__CODE_BLOCK_${index}__`, block)
+  })
+
+  return result
 }

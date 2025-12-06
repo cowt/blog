@@ -8,7 +8,6 @@ export async function getPosts(): Promise<PostMeta[]> {
     const json = await getFile(INDEX_FILE)
     if (!json) {
       // 索引文件不存在,初始化为空数组
-      console.log("Posts index not found, initializing...")
       await uploadFile(INDEX_FILE, JSON.stringify([]), "application/json")
       return []
     }

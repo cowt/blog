@@ -11,16 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ArrowLeft, Loader2, Eye, EyeOff, Download, BookOpen } from "lucide-react"
+import { ArrowLeft, Loader2, Download, BookOpen, Save } from "lucide-react"
 import { PublishModal } from "./editor/publish-modal"
-import { format } from "date-fns"
-import { marked } from "marked"
-import { PostArticle } from "@/components/post/article"
-import type { Post } from "@/types"
+import { markdownToHtml } from "@/lib/markdown-to-html"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { useIsMobile } from "@/hooks/use-mobile"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+import { TiptapEditor } from "./editor/tiptap-editor"
 
 interface EditorProps {
   initialPost?: {
@@ -55,9 +51,6 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   const [tags, setTags] = useState<string[]>(initialPost?.tags || [])
   const [isSaving, setIsSaving] = useState(false)
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false)
-  const [showPreview, setShowPreview] = useState(true)
-  const isMobile = useIsMobile()
-  const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor")
   
   // Local Storage Logic
   const storageKey = useMemo(() => {
@@ -107,70 +100,11 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
     localStorage.removeItem(storageKey)
   }
   
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const textareaSingleRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
 
-  const fallbackCreatedAtRef = useRef(initialPost?.createdAt ?? new Date().toISOString())
   const initialTitle = initialPost?.title || ""
-  const initialPublished = initialPost?.published ?? false
 
-  const derivedTitle = useMemo(() => extractTitle(markdown) || initialTitle || "Untitled", [markdown, initialTitle])
-
-  const previewPost = useMemo<Post>(
-    () => ({
-      slug: slug || newSlug || "preview",
-      title: derivedTitle,
-      content: markdown || "",
-      createdAt: fallbackCreatedAtRef.current,
-      published: initialPublished,
-    }),
-    [slug, newSlug, derivedTitle, markdown, initialPublished],
-  )
-
-  // Adjust textarea height
-  const adjustTextareaHeight = (textarea: HTMLTextAreaElement | null) => {
-    if (textarea) {
-      textarea.style.height = 'auto'
-      const newHeight = Math.max(textarea.scrollHeight, 500)
-      textarea.style.height = `${newHeight}px`
-    }
-  }
-
-  // Auto-resize textarea based on content
-  useEffect(() => {
-    adjustTextareaHeight(textareaRef.current)
-    adjustTextareaHeight(textareaSingleRef.current)
-  }, [markdown])
-  
-  // Initial height adjustment on mount
-  useEffect(() => {
-    adjustTextareaHeight(textareaRef.current)
-    adjustTextareaHeight(textareaSingleRef.current)
-  }, [])
-
-  // Handle textarea input with auto-resize
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    adjustTextareaHeight(e.target)
-    setMarkdown(e.target.value)
-  }
-
-  // Ref callback to set initial height when textarea mounts
-  const textareaRefCallback = (element: HTMLTextAreaElement | null) => {
-    textareaRef.current = element
-    adjustTextareaHeight(element)
-  }
-
-  const textareaSingleRefCallback = (element: HTMLTextAreaElement | null) => {
-    textareaSingleRef.current = element
-    adjustTextareaHeight(element)
-  }
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  const uploadImage = async (file: File): Promise<string | null> => {
     const formData = new FormData()
     formData.append("file", file)
 
@@ -184,19 +118,17 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
       const data = await res.json()
 
       if (data.url) {
-        const imageMarkdown = `![Image](${data.url})`
-        setMarkdown((prev) => prev + "\n" + imageMarkdown)
         toast.success("Image uploaded")
+        return data.url
       } else {
         toast.error("Upload failed")
+        return null
       }
     } catch (error) {
       toast.error("Error uploading image")
+      return null
     } finally {
       toast.dismiss(loadingToast)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
     }
   }
 
@@ -218,9 +150,9 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
     toast.success("Exported to Markdown")
   }
 
-  const handleExportHTML = async () => {
+  const handleExportHTML = () => {
     try {
-      const htmlContent = await marked.parse(markdown)
+      const htmlContent = markdownToHtml(markdown)
       const fullHtml = `
 <!DOCTYPE html>
 <html lang="en">
@@ -256,6 +188,52 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
     }
   }
 
+  const handleSaveDraft = async () => {
+    const title = extractedTitle || initialTitle || "Untitled"
+    // Generate slug if missing
+    let currentSlug = slug
+    if (!currentSlug) {
+      currentSlug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "")
+      
+      if (!currentSlug) {
+        currentSlug = `draft-${Date.now()}`
+      }
+      setSlug(currentSlug)
+    }
+
+    setIsSaving(true)
+
+    try {
+      await savePostAction({
+        slug: currentSlug,
+        title: title,
+        content: markdown,
+        excerpt: excerpt,
+        coverImage: coverImage,
+        showInList: showInList,
+        tags: tags,
+        published: false,
+        createdAt: initialPost?.createdAt || new Date().toISOString(),
+      })
+
+      toast.success("Saved to draft")
+      
+      // If it's a new post, update the URL
+      if (!initialPost) {
+        router.replace(`/admin/posts/${currentSlug}`)
+      }
+      router.refresh()
+    } catch (e) {
+      toast.error("Failed to save draft")
+      console.error(e)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   const handlePublish = async (data: { slug: string; title: string }) => {
     setIsSaving(true)
 
@@ -277,9 +255,8 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
       setIsPublishModalOpen(false)
       router.refresh()
       
-      if (!initialPost) {
-        router.push(`/admin/posts/${data.slug}`)
-      }
+      // Redirect to post list
+      router.push("/admin")
     } catch (e) {
       toast.error("Failed to save post")
       console.error(e)
@@ -311,6 +288,11 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
             {isSaving ? "Saving..." : "Saved locally"}
           </span>
           
+          <Button variant="ghost" size="sm" onClick={handleSaveDraft} disabled={isSaving} className="px-2 sm:px-4">
+            <Save className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Save Draft</span>
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="px-2 sm:px-4">
@@ -328,17 +310,6 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPreview(!showPreview)}
-              className={showPreview ? "bg-muted" : ""}
-            >
-              {showPreview ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-              {showPreview ? "Hide Preview" : "Show Preview"}
-            </Button>
-          )}
           <Button onClick={() => setIsPublishModalOpen(true)} disabled={isSaving} size="sm">
             {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             Publish
@@ -347,83 +318,13 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
       </div>
 
       {/* Editor Area */}
-      <div className="flex-1 flex flex-col">
-        {isMobile ? (
-          <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as "editor" | "preview")} className="flex-1 flex flex-col">
-            <div className="px-4 py-2 border-b bg-muted/30">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="editor">Editor</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
-              </TabsList>
-            </div>
-            <TabsContent value="editor" className="flex-1 mt-0 p-0">
-              <div className="px-4 py-6">
-                <textarea
-                  ref={textareaRefCallback}
-                  className="w-full p-0 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
-                  value={markdown}
-                  onChange={handleTextareaChange}
-                  placeholder="# Your Title\n\nStart writing your markdown content here..."
-                  style={{ minHeight: 'calc(100vh - 200px)' }}
-                />
-              </div>
-            </TabsContent>
-            <TabsContent value="preview" className="flex-1 mt-0 p-0 bg-muted/10">
-              <div className="px-4 py-6 overflow-y-auto h-full">
-                <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
-              </div>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          showPreview ? (
-            <div className="flex gap-4 h-full">
-              {/* Left: Editor */}
-              <div className="flex-1 px-4 py-12 overflow-y-auto">
-                <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
-                  <textarea
-                    ref={textareaRefCallback}
-                    className="w-full p-4 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
-                    value={markdown}
-                    onChange={handleTextareaChange}
-                    placeholder="# Your Title\n\nStart writing your markdown content here..."
-                  />
-                </div>
-              </div>
-              
-              {/* Divider */}
-              <div className="w-px bg-border" />
-              
-              {/* Right: Preview */}
-              <div className="flex-1 bg-muted/10 px-4 py-12 overflow-y-auto">
-                <div style={{ maxWidth: 'var(--container-3xl)' }} className="mx-auto">
-                  <PostArticle post={previewPost} variant="embedded" showHeader={false} showFooter={false} />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="px-4 py-12">
-              <div className="max-w-3xl mx-auto">
-                <textarea
-                  ref={textareaSingleRefCallback}
-                  className="w-full p-4 font-mono text-sm bg-transparent border-none focus:outline-none resize-none"
-                  value={markdown}
-                  onChange={handleTextareaChange}
-                  placeholder="# Your Title\n\nStart writing your markdown content here..."
-                />
-              </div>
-            </div>
-          )
-        )}
+      <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+        <TiptapEditor
+          content={markdown}
+          onChange={setMarkdown}
+          onImageUpload={uploadImage}
+        />
       </div>
-
-      {/* Hidden File Input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleImageUpload}
-      />
 
       {/* Publish Modal */}
       <PublishModal

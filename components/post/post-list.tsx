@@ -6,7 +6,7 @@ import { format } from "date-fns"
 import { LayoutGrid, List, Quote } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { MarkdownRenderer } from "@/components/markdown"
+import { ContentRenderer } from "@/components/content-renderer"
 import type { PostMeta } from "@/types"
 
 interface PostListProps {
@@ -103,11 +103,11 @@ export function PostList({ posts }: PostListProps) {
                   {post.title}
                 </h2>
                 {post.excerpt && (
-                  <div className="flex gap-1.5 items-start text-[10px] text-muted-foreground bg-muted/40 p-2 rounded leading-relaxed">
-                    <Quote className="w-3 h-3 shrink-0 mt-0.5 opacity-50" />
-                    <div className="line-clamp-3 text-sm [&>p]:m-0 [&>p]:inline">
-                      <MarkdownRenderer>{post.excerpt}</MarkdownRenderer>
-                    </div>
+                  <div className="flex gap-0.5 sm:gap-1 items-start text-muted-foreground bg-muted/40 p-1 sm:p-1.5 rounded leading-tight">
+                    <Quote className="w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 mt-px opacity-50" />
+                    <span className="line-clamp-2 text-[8px] sm:text-[9px]">
+                      <ContentRenderer content={post.excerpt} compact />
+                    </span>
                   </div>
                 )}
               </Link>

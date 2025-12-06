@@ -1,0 +1,1160 @@
+/**
+ * 统一内容样式系统
+ * 用于文章展示和编辑器，确保 WYSIWYG 一致性
+ */
+
+/* 隐藏滚动条 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================
+   基础内容样式
+   ============================================ */
+.content-body {
+  @apply font-sans text-foreground max-w-none;
+  --content-primary: #42b983;
+  --content-quote-bg: hsl(var(--muted) / 0.3);
+  --content-code-bg: #282c34;
+}
+
+/* 字体大小变体 */
+.content-text-sm {
+  @apply text-sm leading-6;
+}
+
+.content-text-base {
+  @apply text-base leading-7;
+}
+
+.content-text-lg {
+  @apply text-lg leading-8;
+}
+
+/* 行高变体 */
+.content-leading-normal {
+  line-height: 1.6;
+}
+
+.content-leading-relaxed {
+  line-height: 1.8;
+}
+
+.content-leading-loose {
+  line-height: 2;
+}
+
+/* ============================================
+   标题样式
+   ============================================ */
+.content-body h1 {
+  @apply text-3xl md:text-4xl font-bold mt-12 mb-6 tracking-tight;
+  color: var(--foreground);
+  line-height: 1.2;
+}
+
+.content-body h2 {
+  @apply text-2xl md:text-3xl font-bold mt-10 mb-5 tracking-tight;
+  color: var(--foreground);
+  line-height: 1.25;
+}
+
+.content-body h3 {
+  @apply text-xl md:text-2xl font-semibold mt-8 mb-4 pl-3 border-l-4;
+  border-color: var(--content-primary);
+  color: var(--foreground);
+  line-height: 1.3;
+}
+
+.content-body h4 {
+  @apply text-lg md:text-xl font-semibold mt-6 mb-3;
+  color: var(--foreground);
+}
+
+.content-body h5 {
+  @apply text-base md:text-lg font-semibold mt-5 mb-2;
+  color: var(--foreground);
+}
+
+.content-body h6 {
+  @apply text-sm font-semibold mt-4 mb-2 uppercase tracking-wide;
+  color: var(--muted-foreground);
+}
+
+/* ============================================
+   段落和文本
+   ============================================ */
+.content-body p {
+  @apply mb-5;
+  letter-spacing: 0.01em;
+}
+
+.content-body strong {
+  @apply font-semibold;
+}
+
+.content-body em {
+  @apply italic;
+}
+
+.content-body del {
+  @apply text-muted-foreground line-through;
+  text-decoration-thickness: 2px;
+}
+
+/* ============================================
+   链接
+   ============================================ */
+.content-body a {
+  @apply no-underline font-medium transition-opacity;
+  color: var(--content-primary);
+  border-bottom: 1px solid var(--content-primary);
+}
+
+.content-body a:hover {
+  @apply opacity-75;
+}
+
+/* ============================================
+   引用块
+   ============================================ */
+.content-body blockquote {
+  @apply my-5 pl-4 py-3 rounded-r-lg border-l-4 not-italic;
+  background-color: var(--content-quote-bg);
+  border-color: var(--content-primary);
+  color: var(--muted-foreground);
+}
+
+.content-body blockquote p {
+  @apply m-0;
+}
+
+/* ============================================
+   列表
+   ============================================ */
+.content-body ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.content-body ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.content-body li {
+  @apply mb-2 pl-1;
+  line-height: 1.7;
+}
+
+/* 嵌套列表 */
+.content-body ul ul,
+.content-body ol ul,
+.content-body ul ol,
+.content-body ol ol {
+  @apply mt-2 mb-0;
+}
+
+/* ============================================
+   任务列表 (Tiptap)
+   ============================================ */
+.content-body ul[data-type="taskList"] {
+  @apply list-none pl-0 my-4;
+}
+
+/* TaskItem: checkbox 和文字同行 */
+.content-body ul[data-type="taskList"] li.task-item,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* label 只包含 checkbox */
+.content-body ul[data-type="taskList"] .task-item-label,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"]>label {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+/* 内容区域 - span 或 div */
+.content-body ul[data-type="taskList"] .task-item-content,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"]>div,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"]>span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 内容区域的段落去掉 margin */
+.content-body ul[data-type="taskList"] .task-item-content>p,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"]>div>p,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"]>span>p {
+  margin: 0;
+  display: inline;
+}
+
+/* 嵌套任务列表 */
+.content-body ul[data-type="taskList"] ul[data-type="taskList"] {
+  @apply pl-6 mt-2 mb-0;
+}
+
+/* Checkbox */
+.content-body ul[data-type="taskList"] input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--content-primary);
+}
+
+/* 已完成任务 */
+.content-body li[data-checked="true"] .task-item-content,
+.content-body li[data-checked="true"]>div,
+.content-body li[data-checked="true"]>span {
+  text-decoration: line-through;
+  color: var(--muted-foreground);
+}
+
+/* ============================================
+   任务列表 (GFM/MarkdownRenderer)
+   ============================================ */
+.content-body ul.contains-task-list {
+  @apply list-none pl-0 my-4;
+}
+
+.content-body li.task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.content-body li.task-list-item>input[type="checkbox"] {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.content-body ul.contains-task-list ul.contains-task-list {
+  @apply pl-6 mt-1 mb-0;
+}
+
+/* ============================================
+   代码
+   ============================================ */
+/* 行内代码 */
+.content-body code:not(pre code) {
+  @apply px-1.5 py-0.5 mx-0.5 rounded text-sm font-mono whitespace-nowrap;
+  color: #c7254e;
+  background-color: #f9f2f4;
+}
+
+.dark .content-body code:not(pre code) {
+  color: #ff6b6b;
+  background-color: #2c2c2c;
+}
+
+/* 代码块 */
+.content-body pre {
+  @apply relative rounded-lg overflow-auto my-5 p-4 border bg-transparent;
+}
+
+.content-body pre code {
+  @apply block overflow-x-auto text-sm font-mono bg-transparent;
+  color: inherit;
+}
+
+/* ============================================
+   图片
+   ============================================ */
+.content-body img {
+  @apply block mx-auto rounded-lg my-6 max-w-full h-auto border border-border;
+}
+
+/* ============================================
+   分割线
+   ============================================ */
+.content-body hr {
+  @apply my-8 border-none h-px;
+  background-image: linear-gradient(to right,
+      transparent,
+      hsl(var(--border)),
+      transparent);
+}
+
+/* ============================================
+   表格
+   ============================================ */
+.content-body .table-wrapper,
+.content-body>div:has(> table) {
+  @apply overflow-x-auto my-6;
+}
+
+.content-body table {
+  @apply w-full text-sm;
+  min-width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid hsl(var(--border) / 0.5);
+  table-layout: fixed;
+}
+
+@media (max-width: 640px) {
+  .content-body table {
+    @apply block overflow-x-auto;
+    min-width: max-content;
+  }
+}
+
+.content-body th,
+.content-body td {
+  @apply px-6 py-4 text-left align-middle;
+  border: 1px solid hsl(var(--border) / 0.5);
+  margin: 0;
+  padding: 16px 24px;
+  position: relative;
+  box-sizing: border-box;
+  min-width: 80px;
+}
+
+.content-body th {
+  @apply font-medium text-foreground;
+  background-color: hsl(var(--muted) / 0.6);
+}
+
+.dark .content-body th {
+  background-color: hsl(var(--muted) / 0.35);
+}
+
+.content-body td {
+  @apply text-foreground;
+}
+
+/* 确保表格行无间隙 */
+.content-body tr {
+  margin: 0;
+  padding: 0;
+}
+
+.content-body thead,
+.content-body tbody {
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================
+   表格列宽调整 (Tiptap resizable)
+   ============================================ */
+/* 列宽调整手柄 */
+.content-editor .tableWrapper {
+  @apply overflow-x-auto my-6;
+}
+
+.content-editor table {
+  @apply w-full text-sm;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1px solid hsl(var(--border) / 0.5);
+  table-layout: fixed;
+  overflow: hidden;
+}
+
+.content-editor th,
+.content-editor td {
+  @apply px-4 py-3 text-left align-top;
+  border: 1px solid hsl(var(--border) / 0.5);
+  position: relative;
+  box-sizing: border-box;
+  min-width: 80px;
+  vertical-align: top;
+}
+
+.content-editor th {
+  @apply font-medium text-foreground;
+  background-color: hsl(var(--muted) / 0.6);
+}
+
+.dark .content-editor th {
+  background-color: hsl(var(--muted) / 0.35);
+}
+
+.content-editor td {
+  @apply text-foreground;
+}
+
+/* 列宽调整手柄样式 */
+.content-editor .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background-color: hsl(var(--primary));
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* 调整时的视觉反馈 */
+.content-editor .resize-cursor {
+  cursor: col-resize;
+}
+
+/* 选中的单元格 */
+.content-editor .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: hsl(var(--primary) / 0.1);
+  pointer-events: none;
+}
+
+/* 表格选中状态 */
+.content-editor table.ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* ============================================
+   折叠面板
+   ============================================ */
+.content-body details {
+  @apply my-4 rounded-lg border border-border overflow-hidden;
+  background-color: var(--content-quote-bg);
+}
+
+.content-body summary {
+  @apply cursor-pointer px-4 py-3 font-medium select-none transition-colors;
+}
+
+.content-body summary:hover {
+  @apply bg-muted/50;
+}
+
+.content-body details[open] summary {
+  @apply border-b border-border;
+}
+
+/* details 内容区域 */
+.content-body details>*:not(summary) {
+  @apply px-4;
+}
+
+.content-body details>*:not(summary):first-of-type {
+  @apply pt-3;
+}
+
+.content-body details>*:not(summary):last-child {
+  @apply pb-3;
+}
+
+/* details 内部列表样式 */
+.content-body details ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.content-body details ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.content-body details li {
+  @apply mb-2 pl-1;
+  line-height: 1.7;
+}
+
+/* details 内部嵌套列表 */
+.content-body details ul ul,
+.content-body details ol ul,
+.content-body details ul ol,
+.content-body details ol ol {
+  @apply mt-2 mb-0;
+}
+
+/* details 内部任务列表 */
+.content-body details ul[data-type="taskList"] {
+  @apply list-none pl-0 my-4;
+}
+
+.content-body details ul[data-type="taskList"] li {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.content-body details ul.contains-task-list {
+  @apply list-none pl-0 my-4;
+}
+
+.content-body details li.task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* details 内部代码块 */
+.content-body details pre {
+  @apply relative rounded-lg overflow-auto my-4 p-4 border bg-transparent;
+}
+
+/* details 内部引用 */
+.content-body details blockquote {
+  @apply my-4 pl-4 py-3 rounded-r-lg border-l-4 not-italic;
+  background-color: hsl(var(--muted) / 0.5);
+  border-color: var(--content-primary);
+  color: var(--muted-foreground);
+}
+
+/* details 内部标题 */
+.content-body details h1,
+.content-body details h2,
+.content-body details h3,
+.content-body details h4,
+.content-body details h5,
+.content-body details h6 {
+  @apply mt-4 first:mt-0;
+}
+
+/* details 内部图片 */
+.content-body details img {
+  @apply block mx-auto rounded-lg my-4 max-w-full h-auto border border-border;
+}
+
+/* details 内部分割线 */
+.content-body details hr {
+  @apply my-4 border-none h-px;
+  background-image: linear-gradient(to right,
+      transparent,
+      hsl(var(--border)),
+      transparent);
+}
+
+/* ============================================
+   高亮和标记
+   ============================================ */
+.content-body mark {
+  @apply px-1 rounded;
+  background-color: #fef08a;
+}
+
+.dark .content-body mark {
+  background-color: rgba(234, 179, 8, 0.3);
+}
+
+/* ============================================
+   上下标
+   ============================================ */
+.content-body sub {
+  @apply text-xs;
+  vertical-align: sub;
+}
+
+.content-body sup {
+  @apply text-xs;
+  vertical-align: super;
+}
+
+/* ============================================
+   脚注
+   ============================================ */
+.content-body .footnotes {
+  @apply mt-12 pt-6 border-t text-sm;
+  border-color: hsl(var(--border));
+}
+
+.content-body .footnotes-title {
+  @apply text-lg font-bold mb-4 mt-0;
+  color: var(--foreground);
+}
+
+.content-body .footnotes-list {
+  @apply list-decimal pl-6 space-y-2;
+  counter-reset: footnote-counter;
+}
+
+.content-body .footnote-item {
+  @apply pl-2;
+  line-height: 1.6;
+}
+
+.content-body .footnote-content {
+  @apply inline;
+}
+
+.content-body .footnote-ref {
+  @apply text-xs align-super font-normal;
+  color: var(--content-primary);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.content-body .footnote-ref a {
+  color: var(--content-primary);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+.content-body .footnote-ref a:hover {
+  text-decoration: underline;
+}
+
+.content-body .footnote-backref {
+  @apply ml-1 text-xs no-underline;
+  color: var(--content-primary);
+}
+
+.content-body .footnote-backref:hover {
+  text-decoration: underline;
+}
+
+/* 脚注高亮效果 */
+.content-body .footnote-item:target {
+  @apply bg-primary/10 -mx-2 px-2 py-1 rounded;
+  animation: footnote-highlight 2s ease-out;
+}
+
+@keyframes footnote-highlight {
+  0% {
+    background-color: hsl(var(--primary) / 0.3);
+  }
+  100% {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+}
+
+/* ============================================
+   Mermaid 图表
+   ============================================ */
+.content-body .mermaid,
+.content-body .mermaid-wrapper {
+  @apply my-6 p-4 rounded-lg overflow-x-auto;
+  background: hsl(var(--muted) / 0.3);
+}
+
+.content-body .mermaid svg,
+.content-body .mermaid-render svg {
+  @apply mx-auto;
+  background: transparent !important;
+}
+
+/* 暗黑模式下 Mermaid 文字颜色优化 */
+:root.dark .content-body .mermaid svg text,
+:root.dark .content-body .mermaid-wrapper svg text,
+:root.dark .mermaid svg text,
+:root.dark .mermaid-wrapper svg text {
+  fill: #f8fafc !important;
+}
+
+:root.dark .content-body .mermaid svg .nodeLabel,
+:root.dark .content-body .mermaid-wrapper svg .nodeLabel,
+:root.dark .mermaid svg .nodeLabel,
+:root.dark .mermaid-wrapper svg .nodeLabel {
+  color: #f8fafc !important;
+}
+
+:root.dark .content-body .mermaid svg .edgeLabel,
+:root.dark .content-body .mermaid-wrapper svg .edgeLabel,
+:root.dark .mermaid svg .edgeLabel,
+:root.dark .mermaid-wrapper svg .edgeLabel {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+:root.dark .content-body .mermaid svg .label,
+:root.dark .content-body .mermaid-wrapper svg .label,
+:root.dark .mermaid svg .label,
+:root.dark .mermaid-wrapper svg .label {
+  color: #f8fafc !important;
+}
+
+/* ============================================
+   LaTeX 公式
+   ============================================ */
+/* 行内公式 */
+.content-body .math-inline,
+.content-body span[data-type="math-inline"] {
+  @apply inline-block mx-0.5;
+}
+
+/* 块级公式 */
+.content-body .math-block,
+.content-body div[data-type="math-block"] {
+  @apply my-6 py-4 px-2 text-center overflow-x-auto rounded-lg;
+  background: hsl(var(--muted) / 0.3);
+}
+
+/* KaTeX 样式覆盖 */
+.content-body .katex {
+  font-size: 1.1em;
+}
+
+.content-body .katex-display {
+  @apply my-0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* ============================================
+   编辑器特定样式
+   ============================================ */
+.content-editor {
+  @apply min-h-[500px] focus:outline-none pb-24;
+}
+
+/* Tiptap placeholder */
+.content-editor .is-editor-empty:first-child::before {
+  @apply text-muted-foreground pointer-events-none float-left h-0;
+  content: attr(data-placeholder);
+}
+
+/* Tiptap 选中状态 */
+.content-editor .ProseMirror-selectednode {
+  @apply outline-2 outline-primary outline-offset-2;
+}
+
+/* 编辑器中的 details 样式 */
+.content-editor details {
+  @apply my-4 rounded-lg border border-border overflow-hidden;
+  background-color: var(--content-quote-bg);
+}
+
+.content-editor details summary {
+  @apply cursor-pointer px-4 py-3 font-medium transition-colors list-none;
+}
+
+.content-editor details summary::-webkit-details-marker {
+  display: none;
+}
+
+.content-editor details summary::before {
+  content: "▶";
+  @apply inline-block mr-2 text-xs transition-transform duration-200;
+}
+
+.content-editor details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.content-editor details summary:hover {
+  @apply bg-muted/50;
+}
+
+.content-editor details[open] summary {
+  @apply border-b border-border;
+}
+
+/* details 内容区域 */
+.content-editor details>*:not(summary) {
+  @apply px-4;
+}
+
+.content-editor details>*:not(summary):first-of-type {
+  @apply pt-3;
+}
+
+.content-editor details>*:not(summary):last-child {
+  @apply pb-3;
+}
+
+/* 折叠时隐藏内容 */
+.content-editor details:not([open])>*:not(summary) {
+  @apply hidden;
+}
+
+/* 编辑器 details 内部列表样式 */
+.content-editor details ul:not([data-type="taskList"]) {
+  @apply list-disc pl-6 mb-4;
+}
+
+.content-editor details ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.content-editor details li {
+  @apply mb-2 pl-1;
+  line-height: 1.7;
+}
+
+/* 编辑器 details 内部嵌套列表 */
+.content-editor details ul ul,
+.content-editor details ol ul,
+.content-editor details ul ol,
+.content-editor details ol ol {
+  @apply mt-2 mb-0;
+}
+
+/* 编辑器 details 内部任务列表 */
+.content-editor details ul[data-type="taskList"] {
+  @apply list-none pl-0 my-4;
+}
+
+.content-editor details ul[data-type="taskList"] li {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* 编辑器 details 内部代码块 */
+.content-editor details pre {
+  @apply relative rounded-lg overflow-auto my-4 p-4 border bg-transparent;
+}
+
+/* 编辑器 details 内部引用 */
+.content-editor details blockquote {
+  @apply my-4 pl-4 py-3 rounded-r-lg border-l-4 not-italic;
+  background-color: hsl(var(--muted) / 0.5);
+  border-color: var(--content-primary);
+  color: var(--muted-foreground);
+}
+
+/* 编辑器 details 内部标题 */
+.content-editor details h1,
+.content-editor details h2,
+.content-editor details h3,
+.content-editor details h4,
+.content-editor details h5,
+.content-editor details h6 {
+  @apply mt-4 first:mt-0;
+}
+
+/* 编辑器 details 内部图片 */
+.content-editor details img {
+  @apply block mx-auto rounded-lg my-4 max-w-full h-auto border border-border;
+}
+
+/* 编辑器 details 内部分割线 */
+.content-editor details hr {
+  @apply my-4 border-none h-px;
+  background-image: linear-gradient(to right,
+      transparent,
+      hsl(var(--border)),
+      transparent);
+}
+
+/* ============================================
+   文章展示特定样式
+   ============================================ */
+.content-article {
+  /* 文章页面可以有更大的间距 */
+}
+
+/* ============================================
+   主题变体: Default (当前主题)
+   ============================================ */
+.content-theme-default {
+  --content-primary: #42b983;
+}
+
+/* ============================================
+   主题变体: Minimal
+   ============================================ */
+.content-theme-minimal {
+  --content-primary: hsl(var(--foreground));
+}
+
+.content-theme-minimal h3 {
+  @apply border-l-0 pl-0;
+}
+
+.content-theme-minimal blockquote {
+  @apply border-l-2;
+  border-color: hsl(var(--border));
+}
+
+.content-theme-minimal a {
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--border));
+}
+
+/* ============================================
+   主题变体: Magazine
+   ============================================ */
+.content-theme-magazine {
+  --content-primary: #e63946;
+  @apply font-serif;
+}
+
+.content-theme-magazine h1,
+.content-theme-magazine h2,
+.content-theme-magazine h3,
+.content-theme-magazine h4 {
+  @apply font-sans;
+}
+
+.content-theme-magazine h1 {
+  @apply text-4xl md:text-5xl text-center;
+}
+
+.content-theme-magazine p:first-of-type::first-letter {
+  @apply text-5xl font-bold float-left mr-2 leading-none;
+  color: var(--content-primary);
+}
+
+/* ============================================
+   主题变体: Notion
+   ============================================ */
+.content-theme-notion {
+  --content-primary: #2383e2;
+  --content-quote-bg: hsl(var(--muted) / 0.5);
+}
+
+.content-theme-notion h1 {
+  @apply text-4xl font-bold mt-8 mb-4;
+}
+
+.content-theme-notion h2 {
+  @apply text-2xl font-semibold mt-6 mb-3;
+}
+
+.content-theme-notion h3 {
+  @apply text-xl font-semibold mt-5 mb-2 border-l-0 pl-0;
+}
+
+.content-theme-notion blockquote {
+  @apply border-l-3 rounded-none;
+}
+
+.content-theme-notion code:not(pre code) {
+  @apply text-red-500 bg-red-50;
+}
+
+.dark .content-theme-notion code:not(pre code) {
+  @apply text-red-400 bg-red-950/50;
+}
+
+/* ============================================
+   高亮动画 (脚注跳转)
+   ============================================ */
+.content-body .highlight-target {
+  @apply bg-primary/10 rounded px-2 py-1;
+  animation: content-highlight-pulse 2s ease-in-out;
+}
+
+@keyframes content-highlight-pulse {
+
+  0%,
+  100% {
+    background-color: transparent;
+  }
+
+  25%,
+  75% {
+    background-color: hsl(var(--primary) / 0.15);
+  }
+
+  50% {
+    background-color: hsl(var(--primary) / 0.25);
+  }
+}
+
+
+/* ============================================
+   摘要内容样式
+   ============================================ */
+.excerpt-content {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.excerpt-content .tiptap,
+.excerpt-content .ProseMirror,
+.excerpt-text.tiptap,
+.excerpt-text.ProseMirror {
+  padding: 0 !important;
+  min-height: auto !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.excerpt-content .tiptap p,
+.excerpt-content .ProseMirror p,
+.excerpt-text.tiptap p,
+.excerpt-text.ProseMirror p {
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* 覆盖 content-body 的默认样式 */
+.excerpt-content .content-body,
+.excerpt-text.content-body {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.excerpt-content .content-body p,
+.excerpt-text.content-body p {
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+/* ============================================
+   Lowlight/Highlight.js 代码高亮
+   ============================================ */
+/* Highlight.js 语法高亮 - 亮色主题 (GitHub Light) */
+.hljs {
+  color: #24292f;
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #6e7781;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: #cf222e;
+}
+
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  color: #0a3069;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #8250df;
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  color: #953800;
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  color: #0550ae;
+}
+
+.hljs-built_in,
+.hljs-deletion {
+  color: #cf222e;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* Highlight.js 语法高亮 - 暗色主题 (GitHub Dark) */
+.dark .hljs {
+  color: #c9d1d9;
+  background: transparent;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #8b949e;
+  font-style: italic;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-addition {
+  color: #ff7b72;
+}
+
+.dark .hljs-number,
+.dark .hljs-string,
+.dark .hljs-meta .hljs-meta-string,
+.dark .hljs-literal,
+.dark .hljs-doctag,
+.dark .hljs-regexp {
+  color: #a5d6ff;
+}
+
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-name,
+.dark .hljs-selector-id,
+.dark .hljs-selector-class {
+  color: #d2a8ff;
+}
+
+.dark .hljs-attribute,
+.dark .hljs-attr,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-class .hljs-title,
+.dark .hljs-type {
+  color: #ffa657;
+}
+
+.dark .hljs-symbol,
+.dark .hljs-bullet,
+.dark .hljs-subst,
+.dark .hljs-meta,
+.dark .hljs-meta .hljs-keyword,
+.dark .hljs-selector-attr,
+.dark .hljs-selector-pseudo,
+.dark .hljs-link {
+  color: #79c0ff;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-deletion {
+  color: #ffa198;
+}
+
+
+/* ============================================
+   CodeBlockLowlight 代码块样式
+   ============================================ */
+/* 代码块基础样式 */
+.content-body pre,
+.content-editor pre {
+  @apply relative rounded-lg overflow-auto my-5 p-4 border;
+  background-color: #f6f8fa;
+}
+
+.dark .content-body pre,
+.dark .content-editor pre {
+  background-color: #0d1117;
+}
+
+.content-body pre code,
+.content-editor pre code {
+  @apply block overflow-x-auto text-sm font-mono leading-relaxed;
+  background: transparent;
+  color: inherit;
+}

@@ -2,7 +2,7 @@
 
 import { BubbleMenu } from "@tiptap/react/menus"
 import { Editor } from "@tiptap/react"
-import { Bold, Italic, Strikethrough, Code, Link as LinkIcon } from "lucide-react"
+import { Bold, Italic, Strikethrough, Code, Link as LinkIcon, Superscript, Subscript } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useCallback } from "react"
 
@@ -77,6 +77,26 @@ export function EditorBubbleMenu({ editor }: MenuBarProps) {
         )}
       >
         <Code className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
+        className={cn(
+          "p-2 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors",
+          editor.isActive("superscript") && "bg-muted text-foreground",
+        )}
+        title="上标"
+      >
+        <Superscript className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+        className={cn(
+          "p-2 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors",
+          editor.isActive("subscript") && "bg-muted text-foreground",
+        )}
+        title="下标"
+      >
+        <Subscript className="h-4 w-4" />
       </button>
       <button
         onClick={setLink}

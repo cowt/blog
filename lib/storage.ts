@@ -66,7 +66,7 @@ async function getStorageConfig(): Promise<S3Config | null> {
       } catch (error: any) {
         // 配置文件不存在或读取失败,继续使用环境变量
         if (error?.Code === "NoSuchKey" || error?.name === "NoSuchKey") {
-          console.log("No S3 config file found, using environment variables")
+          // S3 config not found, using environment variables
         } else {
           console.error("Error reading S3 config file:", error)
         }
