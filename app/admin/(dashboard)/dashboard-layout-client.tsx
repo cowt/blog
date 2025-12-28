@@ -3,7 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { LogOut, FileText, Plus, Settings, Sparkles, Database, Menu } from "lucide-react"
+import { LogOut, FileText, Plus, Settings, Sparkles, Database, Menu, Type } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
   Sheet,
@@ -28,6 +28,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Link href="/admin">
             <FileText className="w-4 h-4" />
             Posts
+          </Link>
+        </Button>
+        <Button variant="ghost" className="justify-start gap-2" asChild onClick={onNavigate}>
+          <Link href="/admin/content-config">
+            <Type className="w-4 h-4" />
+            内容样式配置
           </Link>
         </Button>
         <Button variant="ghost" className="justify-start gap-2" asChild onClick={onNavigate}>

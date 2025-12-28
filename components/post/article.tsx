@@ -5,7 +5,7 @@ import { format } from "date-fns"
 import { Edit, Quote } from "lucide-react"
 import type { Post } from "@/types"
 import { ContentRenderer } from "@/components/content-renderer"
-import { getArticleClassName, defaultContentConfig } from "@/lib/content-styles"
+import { getArticleClassName, defaultContentConfig, ContentStyleConfig } from "@/lib/content-styles"
 
 interface PostArticleProps {
   post: Post
@@ -14,6 +14,7 @@ interface PostArticleProps {
   variant?: "page" | "embedded"
   showHeader?: boolean
   showFooter?: boolean
+  contentConfig?: ContentStyleConfig
 }
 
 export function PostArticle({
@@ -23,6 +24,7 @@ export function PostArticle({
   variant = "page",
   showHeader = true,
   showFooter = true,
+  contentConfig = defaultContentConfig,
 }: PostArticleProps) {
   const publishedText = post.createdAt ? format(new Date(post.createdAt), "MMMM d, yyyy") : null
   const outerClass =
@@ -74,7 +76,7 @@ export function PostArticle({
 
         <ContentRenderer 
           content={post.content} 
-          className={getArticleClassName(defaultContentConfig)}
+          className={getArticleClassName(contentConfig)}
         />
 
         {showFooter && backLinkHref && (post.showInList !== false) ? (

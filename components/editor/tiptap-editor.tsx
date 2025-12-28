@@ -14,6 +14,9 @@ import Superscript from "@tiptap/extension-superscript"
 import Subscript from "@tiptap/extension-subscript"
 import { CustomTaskItem } from "./extensions/task-item"
 import { Details, DetailsSummary } from "./extensions/details"
+import { TextIndent } from "./extensions/text-indent"
+import { ImageUpload } from "./extensions/image-upload"
+import { EnhancedImage } from "./extensions/enhanced-image"
 import { MathInline } from "./extensions/math"
 import { MathBlock } from "./extensions/math-block"
 import { Mermaid } from "./extensions/mermaid"
@@ -25,6 +28,7 @@ import { common, createLowlight } from "lowlight"
 import { ReactNodeViewRenderer } from "@tiptap/react"
 import { CodeBlockView } from "./extensions/code-block-lowlight-view"
 import { EditorBubbleMenu } from "./bubble-menu"
+import { ImageBubbleMenu } from "./image-bubble-menu"
 
 // 创建 lowlight 实例
 const lowlight = createLowlight(common)
@@ -40,27 +44,39 @@ interface TiptapEditorProps {
   content: string
   onChange: (content: string) => void
   onImageUpload: (file: File) => Promise<string | null>
+  className?: string
 }
 
-export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorProps) {
+export function TiptapEditor({ content, onChange, onImageUpload, className }: TiptapEditorProps) {
   const [isMounted, setIsMounted] = useState(false)
+  const [initialContent, setInitialContent] = useState<string | null>(null)
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
         codeBlock: false, // 使用 CodeBlockLowlight
+        link: false, // 使用自定义 Link 配置
       }),
       CodeBlockLowlight.extend({
         addNodeView() {
           return ReactNodeViewRenderer(CodeBlockView)
         },
+        addKeyboardShortcuts() {
+          return {
+            "Mod-Alt-c": () => this.editor.commands.toggleCodeBlock(),
+          }
+        },
       }).configure({
         lowlight,
         defaultLanguage: "plaintext",
       }),
-      Image.configure({
-        HTMLAttributes: { class: "rounded-lg border border-border" },
+      EnhancedImage.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "block mx-auto rounded-lg border border-border max-w-full h-auto my-4",
+        },
       }),
       Link.configure({
         openOnClick: false,
@@ -72,6 +88,11 @@ export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorP
         handleWidth: 4,
         cellMinWidth: 80,
         lastColumnResizable: true,
+        addKeyboardShortcuts() {
+          return {
+            "Mod-Alt-t": () => this.editor.commands.insertTable({ rows: 3, cols: 3, withHeaderRow: true }),
+          }
+        },
       }),
       TableRow,
       TableHeader.configure({
@@ -84,12 +105,49 @@ export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorP
           class: "relative",
         },
       }),
-      TaskList,
-      CustomTaskItem.configure({ nested: true }),
+      TaskList.configure({
+        addKeyboardShortcuts() {
+          return {
+            "Mod-Shift-l": () => this.editor.commands.toggleTaskList(),
+            "Tab": () => {
+              if (this.editor.isActive("taskItem")) {
+                return this.editor.commands.sinkListItem("taskItem")
+              }
+              return false
+            },
+            "Shift-Tab": () => {
+              if (this.editor.isActive("taskItem")) {
+                return this.editor.commands.liftListItem("taskItem")
+              }
+              return false
+            },
+          }
+        },
+      }),
+      CustomTaskItem.configure({ 
+        nested: true,
+        addKeyboardShortcuts() {
+          return {
+            "Mod-Enter": () => {
+              if (this.editor.isActive("taskItem")) {
+                return this.editor.commands.toggleTask()
+              }
+              return false
+            },
+          }
+        },
+      }),
       Superscript,
       Subscript,
       Details,
       DetailsSummary,
+      TextIndent,
+      ImageUpload.configure({
+        onImageUpload,
+        accept: "image/*",
+        maxSize: 5 * 1024 * 1024, // 5MB
+        multiple: false,
+      }),
       MathInline,
       MathBlock,
       Mermaid,
@@ -101,7 +159,7 @@ export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorP
     ],
     editorProps: {
       attributes: {
-        class: `${getEditorClassName(defaultContentConfig)} px-4 py-4`,
+        class: `${className || getEditorClassName(defaultContentConfig)} px-4 py-4`,
       },
     },
     onUpdate: ({ editor }) => {
@@ -112,14 +170,18 @@ export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorP
   })
 
   useEffect(() => {
-    if (!editor || isMounted) return
+    if (!editor) return
 
-    if (content) {
+    // 只在内容真正改变且未初始化时设置内容
+    if (!isMounted && content && content !== initialContent) {
       const doc = markdownToTiptap(content)
       editor.commands.setContent(doc)
+      setInitialContent(content)
+      setIsMounted(true)
+    } else if (!isMounted && !content) {
+      setIsMounted(true)
     }
-    setIsMounted(true)
-  }, [content, editor, isMounted])
+  }, [content, editor, isMounted, initialContent])
 
   // 处理脚注点击导航
   const handleFootnoteClick = useCallback((e: MouseEvent) => {
@@ -148,29 +210,14 @@ export function TiptapEditor({ content, onChange, onImageUpload }: TiptapEditorP
     return () => document.removeEventListener("click", handleFootnoteClick)
   }, [handleFootnoteClick])
 
-  const handleImageUpload = () => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-    input.onchange = async () => {
-      if (input.files?.length) {
-        const file = input.files[0]
-        const url = await onImageUpload(file)
-        if (url) {
-          editor?.chain().focus().setImage({ src: url }).run()
-        }
-      }
-    }
-    input.click()
-  }
-
   if (!editor) return null
 
   return (
     <div className="flex flex-col w-full bg-background">
-      <Toolbar editor={editor} onImageUpload={handleImageUpload} />
-      <div className="relative flex-1 w-full max-w-4xl mx-auto">
+      <Toolbar editor={editor} />
+      <div className="relative flex-1 w-full max-w-4xl mx-auto overflow-hidden">
         <EditorBubbleMenu editor={editor} />
+        <ImageBubbleMenu editor={editor} />
         <TableMenu editor={editor} />
         <EditorContent editor={editor} />
       </div>

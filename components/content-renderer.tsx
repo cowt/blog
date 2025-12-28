@@ -108,9 +108,17 @@ const createExtensions = () => [
 function FullRenderer({ content, className }: { content: string; className?: string }) {
   // 确保只在客户端渲染，避免 hydration mismatch
   const [isMounted, setIsMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
+    // 检测移动端
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   // 预先解析内容，避免重复解析
@@ -122,10 +130,13 @@ function FullRenderer({ content, className }: { content: string; className?: str
   // 缓存扩展配置
   const extensions = useMemo(() => createExtensions(), [])
 
-  // 缓存 className
+  // 缓存 className，移动端添加特殊样式
   const editorClassName = useMemo(
-    () => className || getArticleClassName(defaultContentConfig),
-    [className]
+    () => {
+      const baseClass = className || getArticleClassName(defaultContentConfig)
+      return isMobile ? `${baseClass} mobile-math-optimized` : baseClass
+    },
+    [className, isMobile]
   )
 
   const editor = useEditor({

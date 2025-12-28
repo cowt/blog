@@ -5,6 +5,7 @@ import { PostArticle } from "@/components/post/article"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import Image from "next/image"
+import { getContentConfig } from "@/lib/content-config"
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -23,6 +24,7 @@ export default async function PostPage({
 }) {
   const { slug } = await params
   const post = await getPost(slug)
+  const contentConfig = await getContentConfig()
 
   if (!post || !post.published) {
     notFound()
@@ -44,7 +46,12 @@ export default async function PostPage({
           <ThemeToggle />
         </div>
       </header>
-      <PostArticle post={post} editLinkHref={`/admin/posts/${post.slug}`} backLinkHref="/" />
+      <PostArticle 
+        post={post} 
+        editLinkHref={`/admin/posts/${post.slug}`} 
+        backLinkHref="/" 
+        contentConfig={contentConfig}
+      />
     </div>
   )
 }

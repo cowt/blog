@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { savePostAction } from "@/app/actions"
 import { toast } from "sonner"
@@ -17,6 +17,7 @@ import { markdownToHtml } from "@/lib/markdown-to-html"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
 import { TiptapEditor } from "./editor/tiptap-editor"
+import { getEditorClassName, defaultContentConfig, ContentStyleConfig } from "@/lib/content-styles"
 
 interface EditorProps {
   initialPost?: {
@@ -31,9 +32,10 @@ interface EditorProps {
     tags?: string[]
   } | null
   newSlug?: string
+  contentConfig?: ContentStyleConfig
 }
 
-export function Editor({ initialPost, newSlug }: EditorProps) {
+export function Editor({ initialPost, newSlug, contentConfig = defaultContentConfig }: EditorProps) {
   // Extract title from markdown content if exists
   const extractTitle = (content: string) => {
     const match = content.match(/^#\s+(.+)$/m)
@@ -105,27 +107,51 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
   const initialTitle = initialPost?.title || ""
 
   const uploadImage = async (file: File): Promise<string | null> => {
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      toast.error("请选择图片文件")
+      return null
+    }
+
+    // 验证文件大小 (5MB)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error("图片大小不能超过 5MB")
+      return null
+    }
+
     const formData = new FormData()
     formData.append("file", file)
 
-    const loadingToast = toast.loading("Uploading image...")
+    const loadingToast = toast.loading(`正在上传 ${file.name}...`, {
+      description: `文件大小: ${(file.size / 1024 / 1024).toFixed(2)}MB`
+    })
 
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
+      
+      if (!res.ok) {
+        throw new Error(`上传失败: ${res.status}`)
+      }
+      
       const data = await res.json()
 
       if (data.url) {
-        toast.success("Image uploaded")
+        toast.success("图片上传成功", {
+          description: file.name
+        })
         return data.url
       } else {
-        toast.error("Upload failed")
-        return null
+        throw new Error(data.error || "上传失败")
       }
     } catch (error) {
-      toast.error("Error uploading image")
+      console.error("Upload error:", error)
+      toast.error("图片上传失败", {
+        description: error instanceof Error ? error.message : "请检查网络连接"
+      })
       return null
     } finally {
       toast.dismiss(loadingToast)
@@ -323,6 +349,7 @@ export function Editor({ initialPost, newSlug }: EditorProps) {
           content={markdown}
           onChange={setMarkdown}
           onImageUpload={uploadImage}
+          className={getEditorClassName(contentConfig)}
         />
       </div>
 

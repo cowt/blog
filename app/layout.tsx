@@ -11,13 +11,13 @@ import "./globals.css"
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-  adjustFontFallback: false,
+  display: "swap",
 })
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-  adjustFontFallback: false,
+  display: "swap",
 })
 
 import { getThemeConfig } from "@/lib/config"

@@ -47,7 +47,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
+import { KeyboardShortcutsHelp } from "./keyboard-shortcuts-help"
 
 // 常用 emoji 分类
 const emojiCategories = {
@@ -63,13 +64,60 @@ const emojiCategories = {
 
 interface ToolbarProps {
   editor: Editor | null
-  onImageUpload?: () => void
 }
 
-export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
+export function Toolbar({ editor }: ToolbarProps) {
+  // State to track if user is typing
+  const [isTyping, setIsTyping] = useState(false)
+  const [typingTimer, setTypingTimer] = useState<NodeJS.Timeout | null>(null)
+  const [isHovered, setIsHovered] = useState(false)
+
+  // Emoji 选择器状态
+  const [emojiOpen, setEmojiOpen] = useState(false)
+
   if (!editor) {
     return null
   }
+
+  // Handle typing detection
+  useEffect(() => {
+    if (!editor) return
+
+    const handleUpdate = () => {
+      setIsTyping(true)
+      
+      // Clear existing timer
+      if (typingTimer) {
+        clearTimeout(typingTimer)
+      }
+      
+      // Set new timer to hide toolbar after 2 seconds of inactivity
+      const newTimer = setTimeout(() => {
+        setIsTyping(false)
+      }, 2000)
+      
+      setTypingTimer(newTimer)
+    }
+
+    const handleSelectionUpdate = () => {
+      // Don't hide toolbar when just selecting text
+      if (typingTimer) {
+        clearTimeout(typingTimer)
+      }
+      setIsTyping(false)
+    }
+
+    editor.on('update', handleUpdate)
+    editor.on('selectionUpdate', handleSelectionUpdate)
+
+    return () => {
+      editor.off('update', handleUpdate)
+      editor.off('selectionUpdate', handleSelectionUpdate)
+      if (typingTimer) {
+        clearTimeout(typingTimer)
+      }
+    }
+  }, [editor, typingTimer])
 
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes("link").href
@@ -188,9 +236,6 @@ export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
     }
   }, [editor])
 
-  // Emoji 选择器状态
-  const [emojiOpen, setEmojiOpen] = useState(false)
-
   // 插入 emoji
   const insertEmoji = useCallback((emoji: string) => {
     editor.chain().focus().insertContent(emoji).run()
@@ -198,7 +243,13 @@ export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
   }, [editor])
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-full border bg-background/90 backdrop-blur shadow-lg transition-all hover:bg-background max-w-[95vw] sm:max-w-none overflow-x-auto scrollbar-hide">
+    <div 
+      className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-full border bg-background/90 backdrop-blur shadow-lg transition-all hover:bg-background max-w-[95vw] sm:max-w-none overflow-x-auto scrollbar-hide ${
+        isTyping && !isHovered ? 'opacity-0 pointer-events-none translate-y-2' : 'opacity-100 pointer-events-auto translate-y-0'
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* 文本格式 */}
       <Toggle
         size="sm"
@@ -290,22 +341,22 @@ export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
         <ListTodo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </Toggle>
 
-      {/* 缩进控制 */}
+      <Separator orientation="vertical" className="h-5 sm:h-6 mx-0.5 sm:mx-1 hidden sm:block" />
+
+      {/* 通用缩进控制 - 支持列表和普通文本 */}
       <Button
-        variant="ghost"
         size="sm"
-        onClick={() => editor.chain().focus().sinkListItem("listItem").run()}
-        disabled={!editor.can().sinkListItem("listItem")}
+        variant="ghost"
+        onClick={() => editor.commands.increaseIndent()}
         aria-label="Increase indent"
         className="rounded-full w-7 h-7 sm:w-8 sm:h-8 p-0"
       >
         <IndentIncrease className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </Button>
       <Button
-        variant="ghost"
         size="sm"
-        onClick={() => editor.chain().focus().liftListItem("listItem").run()}
-        disabled={!editor.can().liftListItem("listItem")}
+        variant="ghost"
+        onClick={() => editor.commands.decreaseIndent()}
         aria-label="Decrease indent"
         className="rounded-full w-7 h-7 sm:w-8 sm:h-8 p-0"
       >
@@ -362,7 +413,7 @@ export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
       <Button
         variant="ghost"
         size="sm"
-        onClick={onImageUpload}
+        onClick={() => editor.commands.openImageUpload()}
         aria-label="Upload image"
         className="rounded-full w-7 h-7 sm:w-8 sm:h-8 p-0"
       >
@@ -487,6 +538,11 @@ export function Toolbar({ editor, onImageUpload }: ToolbarProps) {
       >
         <Redo className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </Button>
+
+      <Separator orientation="vertical" className="h-5 sm:h-6 mx-0.5 sm:mx-1 hidden sm:block" />
+
+      {/* 键盘快捷键帮助 */}
+      <KeyboardShortcutsHelp />
     </div>
   )
 }

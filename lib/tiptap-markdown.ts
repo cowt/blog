@@ -6,7 +6,7 @@ import { Node as ProseMirrorNode } from "@tiptap/pm/model"
 export function tiptapToMarkdown(doc: ProseMirrorNode): string {
   const result: string[] = []
 
-  doc.forEach((node, _offset, index) => {
+  doc.forEach((node, _offset, _index) => {
     const md = nodeToMarkdown(node, 0)
     if (md) result.push(md)
   })
@@ -19,11 +19,15 @@ function nodeToMarkdown(node: ProseMirrorNode, indent: number): string {
 
   switch (node.type.name) {
     case "paragraph":
-      return indentStr + inlineToMarkdown(node)
+      const textIndent = node.attrs.textIndent || 0
+      const indentPrefix = textIndent > 0 ? "  ".repeat(textIndent) : ""
+      return indentPrefix + indentStr + inlineToMarkdown(node)
 
     case "heading":
       const level = node.attrs.level || 1
-      return "#".repeat(level) + " " + inlineToMarkdown(node)
+      const headingIndent = node.attrs.textIndent || 0
+      const headingPrefix = headingIndent > 0 ? "  ".repeat(headingIndent) : ""
+      return headingPrefix + "#".repeat(level) + " " + inlineToMarkdown(node)
 
     case "bulletList":
       return bulletListToMarkdown(node, indent)
@@ -54,6 +58,21 @@ function nodeToMarkdown(node: ProseMirrorNode, indent: number): string {
       const alt = node.attrs.alt || ""
       const src = node.attrs.src || ""
       const title = node.attrs.title ? ` "${node.attrs.title}"` : ""
+      
+      // Preserve image attributes as HTML for complex styling or alignment
+      if (node.attrs.width || node.attrs.style || node.attrs["data-align"]) {
+        const attrs: string[] = []
+        if (node.attrs.width) attrs.push(`width="${node.attrs.width}"`)
+        if (node.attrs.style) attrs.push(`style="${node.attrs.style}"`)
+        if (node.attrs.class) attrs.push(`class="${node.attrs.class}"`)
+        if (node.attrs["data-align"]) attrs.push(`data-align="${node.attrs["data-align"]}"`)
+        attrs.push(`src="${src}"`)
+        if (alt) attrs.push(`alt="${alt}"`)
+        if (node.attrs.title) attrs.push(`title="${node.attrs.title}"`)
+        
+        return `<img ${attrs.join(' ')} />`
+      }
+      
       return `![${alt}](${src}${title})`
 
     case "table":
@@ -132,7 +151,22 @@ function inlineToMarkdown(node: ProseMirrorNode): string {
     } else if (child.type.name === "image") {
       const alt = child.attrs.alt || ""
       const src = child.attrs.src || ""
-      result += `![${alt}](${src})`
+      
+      // Preserve image attributes as HTML for complex styling or alignment
+      if (child.attrs.width || child.attrs.style || child.attrs["data-align"]) {
+        const attrs: string[] = []
+        if (child.attrs.width) attrs.push(`width="${child.attrs.width}"`)
+        if (child.attrs.style) attrs.push(`style="${child.attrs.style}"`)
+        if (child.attrs.class) attrs.push(`class="${child.attrs.class}"`)
+        if (child.attrs["data-align"]) attrs.push(`data-align="${child.attrs["data-align"]}"`)
+        attrs.push(`src="${src}"`)
+        if (alt) attrs.push(`alt="${alt}"`)
+        if (child.attrs.title) attrs.push(`title="${child.attrs.title}"`)
+        
+        result += `<img ${attrs.join(' ')} />`
+      } else {
+        result += `![${alt}](${src})`
+      }
     } else if (child.type.name === "footnoteRef") {
       const id = child.attrs.id || ""
       result += `[^${id}]`
@@ -179,7 +213,7 @@ function listItemToMarkdown(node: ProseMirrorNode, indent: number): string {
 function listItemContent(node: ProseMirrorNode, indent: number): string {
   const parts: string[] = []
 
-  node.forEach((child, _offset, index) => {
+  node.forEach((child, _offset, _index) => {
     if (child.type.name === "paragraph") {
       parts.push(inlineToMarkdown(child))
     } else if (child.type.name === "bulletList") {
@@ -277,6 +311,7 @@ function tableToMarkdown(node: ProseMirrorNode): string {
 function detailsToMarkdown(node: ProseMirrorNode): string {
   let summary = "详情"
   const content: string[] = []
+  const isOpen = node.attrs.open
 
   node.forEach((child) => {
     if (child.type.name === "detailsSummary") {
@@ -287,7 +322,8 @@ function detailsToMarkdown(node: ProseMirrorNode): string {
     }
   })
 
-  return `<details>\n<summary>${summary}</summary>\n\n${content.join("\n\n")}\n\n</details>`
+  const openAttr = isOpen ? " open" : ""
+  return `<details${openAttr}>\n<summary>${summary}</summary>\n\n${content.join("\n\n")}\n\n</details>`
 }
 
 function footnoteListToMarkdown(node: ProseMirrorNode): string {

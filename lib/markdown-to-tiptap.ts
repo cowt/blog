@@ -166,6 +166,34 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
     }
   }
 
+  // HTML 图片标签（独立行）
+  const htmlImgMatch = line.match(/^<img\s+([^>]+)\s*\/?>$/)
+  if (htmlImgMatch) {
+    const attrs: Record<string, string> = {}
+    const attrString = htmlImgMatch[1]
+    
+    // 解析属性
+    const attrMatches = attrString.matchAll(/(\w+)="([^"]*)"/g)
+    for (const match of attrMatches) {
+      attrs[match[1]] = match[2]
+    }
+    
+    return {
+      node: {
+        type: "image",
+        attrs: {
+          src: attrs.src || "",
+          alt: attrs.alt || "",
+          width: attrs.width || null,
+          style: attrs.style || null,
+          class: attrs.class || null,
+          title: attrs.title || null,
+        },
+      },
+      nextIndex: index + 1,
+    }
+  }
+
   // Details
   if (line.startsWith("<details>")) {
     return parseDetails(lines, index, fnCtx)
@@ -178,9 +206,15 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
 
   // 普通段落
   const inlineContent = parseInline(line, fnCtx)
+  
+  // 检测行首的空格缩进
+  const leadingSpaces = line.match(/^(\s*)/)?.[1] || ""
+  const indentLevel = Math.floor(leadingSpaces.length / 2) // 每2个空格为一级缩进
+  
   return {
     node: {
       type: "paragraph",
+      attrs: indentLevel > 0 ? { textIndent: indentLevel } : undefined,
       // 确保段落至少有内容，避免空内容错误
       content: inlineContent.length > 0 ? inlineContent : undefined,
     },
@@ -307,7 +341,7 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
       continue
     }
 
-    // 图片 ![alt](src)
+    // 图片 ![alt](src) 或 HTML img 标签
     const imgMatch = remaining.match(/^!\[([^\]]*)\]\(([^)]+)\)/)
     if (imgMatch) {
       content.push({
@@ -315,6 +349,33 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
         attrs: { src: imgMatch[2], alt: imgMatch[1] },
       })
       remaining = remaining.slice(imgMatch[0].length)
+      continue
+    }
+
+    // HTML 图片标签
+    const htmlImgMatch = remaining.match(/^<img\s+([^>]+)\s*\/?>/)
+    if (htmlImgMatch) {
+      const attrs: Record<string, string> = {}
+      const attrString = htmlImgMatch[1]
+      
+      // 解析属性
+      const attrMatches = attrString.matchAll(/(\w+)="([^"]*)"/g)
+      for (const match of attrMatches) {
+        attrs[match[1]] = match[2]
+      }
+      
+      content.push({
+        type: "image",
+        attrs: {
+          src: attrs.src || "",
+          alt: attrs.alt || "",
+          width: attrs.width || null,
+          style: attrs.style || null,
+          class: attrs.class || null,
+          title: attrs.title || null,
+        },
+      })
+      remaining = remaining.slice(htmlImgMatch[0].length)
       continue
     }
 
@@ -698,7 +759,10 @@ function parseTable(lines: string[], index: number, fnCtx?: FootnoteContext): Pa
   const rows: JSONContent[] = []
   let i = index
   let isFirstRow = true
+  let maxColumns = 0
+  const tableRows: string[][] = []
 
+  // 第一遍：收集所有表格行并确定最大列数
   while (i < lines.length) {
     const line = lines[i].trim()
 
@@ -719,15 +783,36 @@ function parseTable(lines: string[], index: number, fnCtx?: FootnoteContext): Pa
       continue
     }
 
-    const cellNodes: JSONContent[] = cells.map((cellContent) => ({
-      type: isFirstRow ? "tableHeader" : "tableCell",
-      content: [
-        {
-          type: "paragraph",
-          content: parseInline(cellContent, fnCtx),
-        },
-      ],
-    }))
+    tableRows.push(cells)
+    maxColumns = Math.max(maxColumns, cells.length)
+    i++
+  }
+
+  // 第二遍：确保所有行都有相同的列数，并创建JSONContent
+  isFirstRow = true
+  for (const cells of tableRows) {
+    // 补齐缺失的列
+    while (cells.length < maxColumns) {
+      cells.push("")
+    }
+
+    const cellNodes: JSONContent[] = cells.map((cellContent) => {
+      const inlineContent = parseInline(cellContent, fnCtx)
+      return {
+        type: isFirstRow ? "tableHeader" : "tableCell",
+        content: inlineContent.length > 0 ? [
+          {
+            type: "paragraph",
+            content: inlineContent,
+          },
+        ] : [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "" }],
+          },
+        ],
+      }
+    })
 
     rows.push({
       type: "tableRow",
@@ -735,7 +820,6 @@ function parseTable(lines: string[], index: number, fnCtx?: FootnoteContext): Pa
     })
 
     isFirstRow = false
-    i++
   }
 
   return {
@@ -751,7 +835,15 @@ function parseDetails(lines: string[], index: number, fnCtx?: FootnoteContext): 
   let summary = "详情"
   const contentLines: string[] = []
   let i = index + 1
+  let isOpen = false
 
+  // 检查是否有 open 属性
+  const detailsLine = lines[index]
+  if (detailsLine.includes("open")) {
+    isOpen = true
+  }
+
+  // 查找 summary
   while (i < lines.length) {
     const line = lines[i]
     const summaryMatch = line.match(/<summary>(.+)<\/summary>/)
@@ -764,8 +856,12 @@ function parseDetails(lines: string[], index: number, fnCtx?: FootnoteContext): 
     i++
   }
 
+  // 收集内容
   while (i < lines.length && !lines[i].includes("</details>")) {
-    contentLines.push(lines[i])
+    const line = lines[i].trim()
+    if (line) { // 只添加非空行
+      contentLines.push(lines[i])
+    }
     i++
   }
 
@@ -789,12 +885,16 @@ function parseDetails(lines: string[], index: number, fnCtx?: FootnoteContext): 
   if (innerContent.length > 0) {
     detailsContent.push(...innerContent)
   } else {
-    detailsContent.push({ type: "paragraph" })
+    detailsContent.push({ 
+      type: "paragraph",
+      content: [{ type: "text", text: "在这里添加折叠内容..." }]
+    })
   }
 
   return {
     node: {
       type: "details",
+      attrs: { open: isOpen },
       content: detailsContent,
     },
     nextIndex: i + 1,

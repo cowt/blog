@@ -49,8 +49,69 @@
   line-height: 2;
 }
 
+/* 间距变体 */
+.content-spacing-compact p {
+  @apply mb-3;
+}
+
+.content-spacing-compact h1 {
+  @apply mt-8 mb-4;
+}
+
+.content-spacing-compact h2 {
+  @apply mt-6 mb-3;
+}
+
+.content-spacing-compact h3 {
+  @apply mt-5 mb-2;
+}
+
+.content-spacing-compact img {
+  @apply my-4;
+}
+
+.content-spacing-normal p {
+  @apply mb-5;
+}
+
+.content-spacing-normal h1 {
+  @apply mt-12 mb-6;
+}
+
+.content-spacing-normal h2 {
+  @apply mt-10 mb-5;
+}
+
+.content-spacing-normal h3 {
+  @apply mt-8 mb-4;
+}
+
+.content-spacing-normal img {
+  @apply my-6;
+}
+
+.content-spacing-loose p {
+  @apply mb-6;
+}
+
+.content-spacing-loose h1 {
+  @apply mt-16 mb-8;
+}
+
+.content-spacing-loose h2 {
+  @apply mt-12 mb-6;
+}
+
+.content-spacing-loose h3 {
+  @apply mt-10 mb-5;
+}
+
+.content-spacing-loose img {
+  @apply my-8;
+}
+
 /* ============================================
-   标题样式
+   标题样式 - 优化间距和层级
    ============================================ */
 .content-body h1 {
   @apply text-3xl md:text-4xl font-bold mt-12 mb-6 tracking-tight;
@@ -87,11 +148,12 @@
 }
 
 /* ============================================
-   段落和文本
+   段落和文本 - 优化间距和可读性
    ============================================ */
 .content-body p {
   @apply mb-5;
   letter-spacing: 0.01em;
+  line-height: 1.8; /* 提高行高以改善可读性 */
 }
 
 .content-body strong {
@@ -135,19 +197,19 @@
 }
 
 /* ============================================
-   列表
+   列表 - 优化间距和可读性
    ============================================ */
 .content-body ul {
-  @apply list-disc pl-6 mb-4;
+  @apply list-disc pl-6 mb-5; /* 增加底部间距 */
 }
 
 .content-body ol {
-  @apply list-decimal pl-6 mb-4;
+  @apply list-decimal pl-6 mb-5; /* 增加底部间距 */
 }
 
 .content-body li {
   @apply mb-2 pl-1;
-  line-height: 1.7;
+  line-height: 1.7; /* 提高行高 */
 }
 
 /* 嵌套列表 */
@@ -247,7 +309,7 @@
 }
 
 /* ============================================
-   代码
+   代码 - 增强视觉分离
    ============================================ */
 /* 行内代码 */
 .content-body code:not(pre code) {
@@ -256,28 +318,144 @@
   background-color: #f9f2f4;
   word-break: break-word;
   overflow-wrap: break-word;
+  border: 1px solid rgba(199, 37, 78, 0.1); /* 添加细边框 */
 }
 
 .dark .content-body code:not(pre code) {
   color: #ff6b6b;
   background-color: #2c2c2c;
+  border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 /* 代码块 */
 .content-body pre {
-  @apply relative rounded-lg overflow-auto my-5 p-4 border bg-transparent;
+  @apply relative rounded-lg overflow-auto my-6 p-4 border bg-transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影增强分离 */
 }
 
 .content-body pre code {
   @apply block overflow-x-auto text-sm font-mono bg-transparent;
   color: inherit;
+  line-height: 1.6; /* 代码行高优化 */
 }
 
 /* ============================================
-   图片
+   图片 - 优化间距和视觉效果
    ============================================ */
 .content-body img {
   @apply block mx-auto rounded-lg my-6 max-w-full h-auto border border-border;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
+  display: block !important; /* 强制块级显示 */
+}
+
+/* 编辑器中的图片样式 */
+.content-editor img {
+  @apply block mx-auto rounded-lg my-4 max-w-full h-auto border border-border;
+  display: block !important; /* 强制块级显示 */
+}
+
+/* 确保图片所在的段落也是块级 - 但排除表格单元格内的段落 */
+.content-editor p:has(img):not(td p):not(th p),
+.content-body p:has(img):not(td p):not(th p) {
+  @apply block w-full;
+  display: block !important;
+}
+
+/* 图片前后强制换行 */
+.content-editor img::before,
+.content-editor img::after,
+.content-body img::before,
+.content-body img::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0;
+}
+
+/* 更强制的图片块级显示 - 默认独占一行 */
+.content-editor .ProseMirror img,
+.content-body img {
+  display: block !important;
+  clear: both !important;
+  float: none !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* 确保包含图片的元素也是块级 - 但排除表格单元格 */
+.content-editor .ProseMirror *:has(img):not(td):not(th),
+.content-body *:has(img):not(td):not(th) {
+  width: 100% !important;
+  /* display: block !important; */
+}
+
+/* 图片节点强制独占一行 */
+.content-editor .ProseMirror [data-type="image"],
+.content-body [data-type="image"] {
+  display: block !important;
+  width: 100% !important;
+  margin: 1rem 0 !important;
+}
+
+/* 图片对齐样式 - 不使用浮动，避免图文混排 */
+
+/* 左对齐 - 图片独占一行但左对齐 */
+.content-body img[data-align="left"],
+.content-editor img[data-align="left"] {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  display: block !important;
+  float: none !important;
+}
+
+/* 右对齐 - 图片独占一行但右对齐 */
+.content-body img[data-align="right"],
+.content-editor img[data-align="right"] {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: block !important;
+  float: none !important;
+}
+
+/* 居中对齐 - 默认就是居中 */
+.content-body img[data-align="center"],
+.content-editor img[data-align="center"] {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
+  float: none !important;
+}
+
+/* 传统的段落对齐样式支持 - 不使用浮动 */
+.content-body p.text-left img,
+.content-editor p.text-left img {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  float: none !important;
+  display: block !important;
+}
+
+.content-body p.text-center img,
+.content-editor p.text-center img {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  float: none !important;
+  display: block !important;
+}
+
+.content-body p.text-right img,
+.content-editor p.text-right img {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  float: none !important;
+  display: block !important;
+}
+
+/* 图片说明样式 */
+.content-body .image-caption {
+  @apply text-sm text-muted-foreground text-center mt-2 mb-4 italic;
 }
 
 /* ============================================
@@ -292,63 +470,190 @@
 }
 
 /* ============================================
-   表格
+   表格 - 优化可读性和间距
    ============================================ */
 .content-body .table-wrapper,
 .content-body>div:has(> table) {
-  @apply overflow-x-auto my-6;
+  @apply overflow-x-auto my-6 rounded-lg border; /* 添加圆角和边框 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
 }
 
-.content-body table {
-  @apply w-full text-sm;
-  min-width: 100%;
+.content-body table,
+.content-body .tableWrapper table {
+  @apply text-sm;
   border-collapse: collapse;
   border-spacing: 0;
-  border: 1px solid hsl(var(--border) / 0.5);
-  table-layout: fixed;
+  border: none !important; /* 移除表格外边框 */
+  table-layout: fixed; /* 改回固定布局，确保列宽相等 */
+  width: auto; /* 保持自动宽度 */
+  margin: 0 auto; /* 居中显示 */
 }
 
 @media (max-width: 640px) {
   .content-body table {
-    @apply block overflow-x-auto;
-    min-width: max-content;
+    @apply overflow-x-auto;
+    width: auto;
+    min-width: auto;
   }
 }
 
 .content-body th,
-.content-body td {
-  @apply px-6 py-4 text-left align-middle;
-  border: 1px solid hsl(var(--border) / 0.5);
+.content-body td,
+.content-body .tableWrapper th,
+.content-body .tableWrapper td {
+  @apply px-4 py-3 text-center align-middle; /* 改为居中对齐 */
+  border: 1px solid hsl(var(--border) / 0.5); /* 保留单元格内部边框 */
   margin: 0;
-  padding: 16px 24px;
   position: relative;
   box-sizing: border-box;
-  min-width: 80px;
+  width: 120px; /* 固定宽度，确保所有列相等 */
+  height: 50px; /* 固定高度，确保所有行相等 */
+  white-space: nowrap; /* 防止文字换行 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 文字过长时显示省略号 */
 }
 
-.content-body th {
+.content-body th,
+.content-body .tableWrapper th {
   @apply font-medium text-foreground;
   background-color: hsl(var(--muted) / 0.6);
 }
 
-.dark .content-body th {
+.dark .content-body th,
+.dark .content-body .tableWrapper th {
   background-color: hsl(var(--muted) / 0.35);
 }
 
-.content-body td {
+.content-body td,
+.content-body .tableWrapper td {
   @apply text-foreground;
 }
 
 /* 确保表格行无间隙 */
-.content-body tr {
+.content-body tr,
+.content-body .tableWrapper tr {
   margin: 0;
   padding: 0;
 }
 
 .content-body thead,
-.content-body tbody {
+.content-body tbody,
+.content-body .tableWrapper thead,
+.content-body .tableWrapper tbody {
   margin: 0;
   padding: 0;
+}
+
+/* Tiptap 表格内的段落样式 */
+.content-body .tableWrapper p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+/* Tiptap 表格容器样式 */
+.content-body .tableWrapper {
+  @apply overflow-x-auto my-6;
+}
+
+/* 移除 Tiptap 表格容器的边框和圆角 */
+.content-body .tableWrapper {
+  border: none;
+  border-radius: 0;
+}
+
+/* 修复 Tiptap 表格的 colgroup 样式 */
+.content-body .tableWrapper colgroup col {
+  min-width: 80px;
+}
+
+/* 确保表格单元格内容正确对齐 */
+.content-body .tableWrapper th.relative,
+.content-body .tableWrapper td.relative {
+  vertical-align: top;
+}
+
+/* 脚注引用在表格中的样式 */
+.content-body .tableWrapper .footnote-ref {
+  @apply text-primary hover:underline cursor-pointer;
+  font-size: 0.75em;
+  vertical-align: super;
+  display: inline !important;
+}
+
+/* 隐藏 ProseMirror 编辑器的内部元素，防止在渲染中显示 */
+.content-body .ProseMirror-separator,
+.content-body .ProseMirror-trailingBreak,
+.content-body img.ProseMirror-separator,
+.content-body br.ProseMirror-trailingBreak {
+  display: none !important;
+}
+
+/* 确保表格中的脚注引用不会产生额外的换行 */
+.content-body .tableWrapper .footnote-ref + img,
+.content-body .tableWrapper .footnote-ref + br {
+  display: none !important;
+}
+
+/* 强制隐藏表格单元格中的所有ProseMirror内部元素 */
+.content-body .tableWrapper td .ProseMirror-separator,
+.content-body .tableWrapper th .ProseMirror-separator,
+.content-body .tableWrapper td .ProseMirror-trailingBreak,
+.content-body .tableWrapper th .ProseMirror-trailingBreak,
+.content-body .tableWrapper td img.ProseMirror-separator,
+.content-body .tableWrapper th img.ProseMirror-separator,
+.content-body .tableWrapper td br.ProseMirror-trailingBreak,
+.content-body .tableWrapper th br.ProseMirror-trailingBreak {
+  display: none !important;
+}
+
+/* 确保表格单元格内容为行内显示 */
+.content-body .tableWrapper td p,
+.content-body .tableWrapper th p {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 强制表格单元格中的所有内容都为行内显示 */
+.content-body .tableWrapper td *:not(.footnote-ref),
+.content-body .tableWrapper th *:not(.footnote-ref) {
+  display: inline !important;
+}
+
+/* 但是保持脚注引用为上标 */
+.content-body .tableWrapper .footnote-ref {
+  display: inline !important;
+  vertical-align: super !important;
+}
+
+/* 确保表格单元格不会有多余的空白 */
+.content-body .tableWrapper td,
+.content-body .tableWrapper th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2 !important;
+  display: table-cell !important; /* 强制表格单元格显示 */
+}
+
+/* 确保表格本身正确显示 */
+.content-body .tableWrapper table {
+  display: table !important;
+}
+
+.content-body .tableWrapper tr {
+  display: table-row !important;
+}
+
+/* 覆盖可能影响表格的全局样式 */
+.content-body .tableWrapper td *,
+.content-body .tableWrapper th * {
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  clear: none !important;
+  float: none !important;
 }
 
 /* ============================================
@@ -360,22 +665,28 @@
 }
 
 .content-editor table {
-  @apply w-full text-sm;
+  @apply text-sm;
   border-collapse: collapse;
   border-spacing: 0;
-  border: 1px solid hsl(var(--border) / 0.5);
-  table-layout: fixed;
+  border: none !important; /* 移除表格外边框 */
+  table-layout: fixed; /* 固定布局 */
+  width: auto;
+  margin: 0 auto;
   overflow: hidden;
 }
 
 .content-editor th,
 .content-editor td {
-  @apply px-4 py-3 text-left align-top;
-  border: 1px solid hsl(var(--border) / 0.5);
+  @apply px-4 py-3 text-center align-middle; /* 居中对齐 */
+  border: 1px solid hsl(var(--border) / 0.5); /* 保留单元格内部边框 */
   position: relative;
   box-sizing: border-box;
-  min-width: 80px;
-  vertical-align: top;
+  width: 120px; /* 固定宽度 */
+  height: 50px; /* 固定高度 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle; /* 垂直居中 */
 }
 
 .content-editor th {
@@ -657,28 +968,66 @@
 :root.dark .mermaid svg text,
 :root.dark .mermaid-wrapper svg text {
   fill: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* 流程图节点标签 - 参考时序图样式 */
 :root.dark .content-body .mermaid svg .nodeLabel,
 :root.dark .content-body .mermaid-wrapper svg .nodeLabel,
 :root.dark .mermaid svg .nodeLabel,
 :root.dark .mermaid-wrapper svg .nodeLabel {
   color: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* 流程图边标签 */
 :root.dark .content-body .mermaid svg .edgeLabel,
 :root.dark .content-body .mermaid-wrapper svg .edgeLabel,
 :root.dark .mermaid svg .edgeLabel,
 :root.dark .mermaid-wrapper svg .edgeLabel {
   background-color: #1e293b !important;
   color: #f8fafc !important;
+  font-weight: 500 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* 通用标签样式 */
 :root.dark .content-body .mermaid svg .label,
 :root.dark .content-body .mermaid-wrapper svg .label,
 :root.dark .mermaid svg .label,
 :root.dark .mermaid-wrapper svg .label {
   color: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 流程图特定样式 - 让文字更像时序图 */
+:root.dark .content-body .mermaid svg .flowchart-label,
+:root.dark .mermaid svg .flowchart-label {
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  font-size: 14px !important;
+}
+
+/* 决策节点文字 */
+:root.dark .content-body .mermaid svg .decision-text,
+:root.dark .mermaid svg .decision-text {
+  fill: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 流程图节点内的文字 */
+:root.dark .content-body .mermaid svg .node text,
+:root.dark .mermaid svg .node text {
+  fill: #f8fafc !important;
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* ============================================
@@ -688,6 +1037,7 @@
 .content-body .math-inline,
 .content-body span[data-type="math-inline"] {
   @apply inline-block mx-0.5;
+  vertical-align: baseline;
 }
 
 /* 块级公式 */
@@ -700,25 +1050,341 @@
 /* KaTeX 样式覆盖 */
 .content-body .katex {
   font-size: 1.1em;
+  line-height: 1.2;
 }
 
 .content-body .katex-display {
   @apply my-0;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  white-space: nowrap;
+}
+
+/* 移动端公式优化 - 等比例缩小，无滚动条 */
+@media (max-width: 768px) {
+  /* 行内公式移动端优化 */
+  .content-body .math-inline,
+  .content-body span[data-type="math-inline"] {
+    @apply inline-block;
+    max-width: 100%;
+    vertical-align: baseline;
+    white-space: nowrap;
+    overflow: hidden;
+    transform-origin: left center;
+  }
+  
+  .content-body .math-inline .katex {
+    font-size: 0.8em;
+    transform: scale(0.7);
+    transform-origin: left center;
+    display: inline-block;
+    white-space: nowrap;
+    max-width: none;
+  }
+  
+  /* 块级公式移动端优化 */
+  .content-body .math-block,
+  .content-body div[data-type="math-block"] {
+    @apply my-4 py-3 px-1;
+    overflow: hidden;
+    max-width: 100%;
+    transform-origin: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .content-body .math-block .katex-display {
+    font-size: 0.7em;
+    transform: scale(0.6);
+    transform-origin: center;
+    white-space: nowrap;
+    margin: 0 auto;
+    max-width: none;
+    overflow: hidden;
+  }
+  
+  /* 超小屏幕适度缩小 */
+  @media (max-width: 480px) {
+    .content-body .math-inline .katex {
+      font-size: 0.85em;
+      transform: scale(0.75);
+    }
+    
+    .content-body .math-block .katex-display {
+      font-size: 0.8em;
+      transform: scale(0.7);
+    }
+  }
+  
+  /* 防止公式堆叠 */
+  .content-body .katex .katex-html {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+  }
+  
+  .content-body .katex .base {
+    white-space: nowrap !important;
+    display: inline-block !important;
+  }
+  
+  /* 矩阵和复杂公式移动端优化 */
+  .content-body .katex .arraycolsep {
+    width: 0.2em !important;
+  }
+  
+  .content-body .katex .mtable {
+    font-size: 0.85em !important;
+  }
+  
+  .content-body .katex .mtable .col-align-c {
+    text-align: center !important;
+  }
+  
+  /* 分数和上下标移动端优化 */
+  .content-body .katex .frac-line {
+    border-bottom-width: 0.02em !important;
+  }
+  
+  .content-body .katex .sizing {
+    font-size: inherit !important;
+  }
+  
+  /* 强制所有KaTeX元素不超出容器 */
+  .content-body .katex,
+  .content-body .katex-display,
+  .content-body .katex-html {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+  
+  .content-body .katex .base {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* 强制所有数学元素适应容器 */
+  .content-body .katex .mord,
+  .content-body .katex .mop,
+  .content-body .katex .mbin,
+  .content-body .katex .mrel,
+  .content-body .katex .mopen,
+  .content-body .katex .mclose,
+  .content-body .katex .mpunct {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* 特别针对KaTeX渲染的元素 */
+  .content-body .katex-display {
+    overflow: hidden !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+  }
+  
+  /* 移动端强制覆盖所有可能的滚动 */
+  .content-body .math-block *,
+  .content-body .math-inline * {
+    overflow: hidden !important;
+    max-width: 100% !important;
+  }
+  
+  /* 最高优先级覆盖 - 针对具体的KaTeX类 */
+  .content-body .katex[style*="overflow"] {
+    overflow: hidden !important;
+  }
+  
+  .content-body .katex-display[style*="overflow"] {
+    overflow: hidden !important;
+  }
+  
+  /* 覆盖内联样式 */
+  .content-body .math-block[style*="overflow"],
+  .content-body .math-inline[style*="overflow"] {
+    overflow: hidden !important;
+  }
+  
+  /* 移动端公式容器优化 - 完全无滚动条 */
+  .mobile-math-optimized .math-block,
+  .mobile-math-optimized .math-inline {
+    overflow: hidden !important;
+    max-width: 100% !important;
+  }
+  
+  /* 强制移动端公式预览模式 */
+  .mobile-math-optimized .katex-display {
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    transform-origin: center !important;
+  }
+  
+  /* 确保公式容器不会产生任何滚动条 */
+  .mobile-math-optimized {
+    overflow: hidden !important;
+  }
+  
+  .mobile-math-optimized .math-block {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  
+  /* 强制所有KaTeX元素适应容器 */
+  .mobile-math-optimized .katex {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  .mobile-math-optimized .katex-html {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
 }
 
 /* ============================================
    编辑器特定样式
    ============================================ */
 .content-editor {
-  @apply min-h-[500px] focus:outline-none pb-24;
+  @apply min-h-[600px] focus:outline-none pb-24; /* 增加最小高度 */
+}
+
+/* 编辑器中的数学块防重叠 */
+@media (max-width: 768px) {
+  .content-editor .math-block-wrapper {
+    position: relative !important;
+    z-index: 1 !important;
+    margin: 1rem 0 !important;
+    clear: both !important;
+  }
+  
+  .content-editor .math-preview {
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  .content-editor .math-preview .katex-display {
+    overflow: hidden !important;
+    position: static !important;
+    z-index: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* 修复KaTeX行标识重叠问题 */
+  .content-editor .katex .tag {
+    position: static !important;
+    right: auto !important;
+    display: inline !important;
+    margin-left: 1em !important;
+    float: none !important;
+  }
+  
+  .content-editor .katex .katex-display .tag {
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    display: inline-block !important;
+    margin-left: 1em !important;
+    vertical-align: middle !important;
+  }
+  
+  /* 强制所有KaTeX标签元素不使用绝对定位 */
+  .content-editor .katex .eqn-num,
+  .content-editor .katex .tag,
+  .content-editor .katex-display .eqn-num,
+  .content-editor .katex-display .tag {
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    display: inline-block !important;
+    margin-left: 0.5em !important;
+    vertical-align: middle !important;
+  }
 }
 
 /* Tiptap placeholder */
 .content-editor .is-editor-empty:first-child::before {
   @apply text-muted-foreground pointer-events-none float-left h-0;
   content: attr(data-placeholder);
+}
+
+/* Tiptap 选中状态 */
+.content-editor .ProseMirror-selectednode {
+  @apply outline-2 outline-primary outline-offset-2;
+}
+
+/* ============================================
+   响应式优化 - 移动端适配
+   ============================================ */
+@media (max-width: 768px) {
+  /* 防止页面出现任何滚动条 */
+  body {
+    overflow-x: hidden;
+  }
+  
+  .content-body {
+    overflow: hidden;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  
+  .content-body h1 {
+    @apply text-2xl mt-8 mb-4; /* 移动端减小标题 */
+  }
+  
+  .content-body h2 {
+    @apply text-xl mt-6 mb-3;
+  }
+  
+  .content-body h3 {
+    @apply text-lg mt-5 mb-3;
+  }
+  
+  .content-body p {
+    @apply mb-4; /* 移动端减少段落间距 */
+    line-height: 1.7; /* 移动端稍微紧凑的行高 */
+  }
+  
+  .content-body img {
+    @apply my-4; /* 移动端减少图片间距 */
+  }
+  
+  .content-body ul,
+  .content-body ol {
+    @apply mb-4; /* 移动端减少列表间距 */
+  }
+  
+/* 移动端表格优化 */
+@media (max-width: 768px) {
+  .content-body th,
+  .content-body td {
+    @apply px-2 py-2 text-xs; /* 移动端减少表格内边距和字体 */
+    width: 80px; /* 移动端减小单元格宽度 */
+    height: 40px; /* 移动端减小单元格高度 */
+  }
+}
+  
+  /* 移动端代码块优化 */
+  .content-body pre {
+    @apply my-4 p-3; /* 减少移动端代码块间距和内边距 */
+    overflow: hidden;
+    max-width: 100%;
+    font-size: 0.8em;
+    transform: scale(0.9);
+    transform-origin: left top;
+  }
 }
 
 /* Tiptap 选中状态 */
@@ -936,6 +1602,49 @@
 
 .dark .content-theme-notion code:not(pre code) {
   @apply text-red-400 bg-red-950/50;
+}
+
+/* ============================================
+   主题变体: Japanese (日式简约)
+   ============================================ */
+.content-theme-japanese {
+  --content-primary: #2563eb; /* 蓝色强调 */
+  --content-quote-bg: hsl(var(--muted) / 0.2);
+  
+  /* 更大的行高，提高可读性 */
+  line-height: 1.8;
+}
+
+.content-theme-japanese h1 {
+  @apply text-center pb-4 mb-8 border-b border-border;
+  /* 标题居中，添加下边框 */
+}
+
+.content-theme-japanese h2 {
+  @apply mt-12 mb-6; /* 增加章节间距 */
+}
+
+.content-theme-japanese p {
+  @apply mb-6; /* 更大的段落间距 */
+  text-indent: 1em; /* 段落首行缩进 */
+}
+
+/* 日式引用样式 */
+.content-theme-japanese blockquote {
+  @apply border-l-0 border-t-2 border-b-2 py-4 px-6 text-center italic;
+  border-color: var(--content-primary);
+  background-color: transparent;
+}
+
+/* 日式列表样式 */
+.content-theme-japanese ul,
+.content-theme-japanese ol {
+  @apply mb-6; /* 更大的列表间距 */
+}
+
+.content-theme-japanese li {
+  @apply mb-3; /* 更大的列表项间距 */
+  line-height: 1.8;
 }
 
 /* ============================================

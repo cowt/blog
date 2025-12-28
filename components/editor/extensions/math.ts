@@ -51,11 +51,32 @@ export const MathInline = Node.create({
       dom.className = "math-inline cursor-pointer"
       dom.contentEditable = "false"
 
+      // 移动端检测
+      const isMobile = window.innerWidth <= 768
+
       try {
-        dom.innerHTML = katex.renderToString(node.attrs.latex, {
+        const rendered = katex.renderToString(node.attrs.latex, {
           throwOnError: false,
           displayMode: false,
+          // 移动端使用更小的字体
+          ...(isMobile && {
+            macros: {
+              "\\arraystretch": "0.8"
+            }
+          })
         })
+        dom.innerHTML = rendered
+        
+        // 移动端额外样式 - 更激进的缩放确保无滚动条
+        if (isMobile) {
+          dom.style.maxWidth = "100%"
+          dom.style.overflow = "hidden"
+          dom.style.whiteSpace = "nowrap"
+          dom.style.display = "inline-block"
+          dom.style.transformOrigin = "left center"
+          dom.style.transform = "scale(0.7)"
+          dom.style.boxSizing = "border-box"
+        }
       } catch {
         dom.textContent = node.attrs.latex
       }

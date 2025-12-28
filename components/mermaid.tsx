@@ -40,6 +40,14 @@ export function Mermaid({ chart }: MermaidProps) {
         edgeLabelBackground: "#1e293b",
         textColor: "#f8fafc",
         nodeTextColor: "#f8fafc",
+        // 流程图特定样式 - 参考时序图
+        cScale0: "#f8fafc",
+        cScale1: "#f8fafc", 
+        cScale2: "#f8fafc",
+        // 增强文字对比度
+        fontFamily: "ui-sans-serif, system-ui, sans-serif",
+        fontSize: "14px",
+        fontWeight: "500",
       } : undefined,
     })
 

@@ -49,7 +49,7 @@ export const MathBlock = Node.create({
       const dom = document.createElement("div")
       dom.setAttribute("data-type", "math-block")
       dom.setAttribute("data-latex", currentLatex)
-      dom.className = "math-block-wrapper group relative my-4 rounded-lg border border-border overflow-hidden bg-muted/20"
+      dom.className = "math-block-wrapper group relative my-4 rounded-lg border border-border overflow-hidden bg-muted/20 clear-both"
       dom.contentEditable = "false"
 
       // 悬浮工具栏
@@ -122,11 +122,73 @@ export const MathBlock = Node.create({
           previewContainer.innerHTML = '<span class="text-muted-foreground text-sm italic">预览区域</span>'
           return
         }
+        
+        // 移动端检测
+        const isMobile = window.innerWidth <= 768
+        
         try {
-          previewContainer.innerHTML = katex.renderToString(currentLatex, {
+          const rendered = katex.renderToString(currentLatex, {
             throwOnError: false,
             displayMode: true,
+            // 移动端优化选项
+            ...(isMobile && {
+              macros: {
+                "\\arraystretch": "0.8"
+              }
+            })
           })
+          previewContainer.innerHTML = rendered
+          
+          // 移动端额外样式 - 防止重叠和滚动条
+          if (isMobile) {
+            previewContainer.style.overflow = "hidden"
+            previewContainer.style.maxWidth = "100%"
+            previewContainer.style.boxSizing = "border-box"
+            previewContainer.style.transformOrigin = "center"
+            previewContainer.style.transform = "scale(0.6)"
+            previewContainer.style.height = "auto"
+            previewContainer.style.minHeight = "60px"
+            previewContainer.style.position = "relative"
+            previewContainer.style.zIndex = "1"
+            // 强制移除任何可能的滚动
+            previewContainer.style.overflowX = "hidden"
+            previewContainer.style.overflowY = "hidden"
+            const katexDisplay = previewContainer.querySelector('.katex-display') as HTMLElement
+            if (katexDisplay) {
+              katexDisplay.style.whiteSpace = "nowrap"
+              katexDisplay.style.overflow = "hidden"
+              katexDisplay.style.overflowX = "hidden"
+              katexDisplay.style.overflowY = "hidden"
+              katexDisplay.style.maxWidth = "100%"
+              katexDisplay.style.margin = "0"
+              katexDisplay.style.padding = "0"
+              katexDisplay.style.position = "static"
+            }
+            // 移除所有子元素的滚动和重叠
+            const allElements = previewContainer.querySelectorAll('*')
+            allElements.forEach(el => {
+              const element = el as HTMLElement
+              element.style.overflow = "hidden"
+              element.style.overflowX = "hidden"
+              element.style.overflowY = "hidden"
+              element.style.position = "static"
+              element.style.zIndex = "auto"
+              
+              // 特别处理KaTeX标签元素
+              if (element.classList.contains('tag') || 
+                  element.classList.contains('eqn-num') ||
+                  element.className.includes('tag')) {
+                element.style.position = "static"
+                element.style.right = "auto"
+                element.style.top = "auto"
+                element.style.transform = "none"
+                element.style.display = "inline-block"
+                element.style.marginLeft = "0.5em"
+                element.style.verticalAlign = "middle"
+                element.style.float = "none"
+              }
+            })
+          }
         } catch (error) {
           previewContainer.innerHTML = `<pre class="text-red-500 text-sm">${error instanceof Error ? error.message : "渲染错误"}</pre>`
         }
@@ -178,6 +240,13 @@ export const MathBlock = Node.create({
       }
 
       // 初始化
+      // 移动端默认使用预览模式
+      const isMobile = window.innerWidth <= 768
+      if (isMobile) {
+        currentMode = "preview"
+        switchMode("preview")
+      }
+      
       updateButtonStyles()
       renderLatex()
 

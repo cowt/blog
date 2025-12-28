@@ -127,3 +127,25 @@ export async function saveS3Config(config: S3Config) {
     throw new Error("Failed to save S3 config")
   }
 }
+
+// 通用配置管理函数
+export async function getConfig(key: string): Promise<any> {
+  try {
+    const configFile = `config/${key}.json`
+    const json = await getFile(configFile)
+    return json ? JSON.parse(json) : null
+  } catch (e) {
+    console.error(`Error fetching config for key ${key}:`, e)
+    return null
+  }
+}
+
+export async function saveConfig(key: string, config: any): Promise<void> {
+  try {
+    const configFile = `config/${key}.json`
+    await uploadFile(configFile, JSON.stringify(config, null, 2), "application/json")
+  } catch (e) {
+    console.error(`Error saving config for key ${key}:`, e)
+    throw new Error(`Failed to save config for key ${key}`)
+  }
+}

@@ -47,6 +47,9 @@ export function markdownToHtml(markdown: string): string {
   // 链接
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
 
+  // 脚注引用 [^id]
+  html = html.replace(/\[\^([^\]]+)\]/g, '<sup class="footnote-ref">$1</sup>')
+
   // 图片
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
 
@@ -57,6 +60,9 @@ export function markdownToHtml(markdown: string): string {
 
   // 分割线
   html = html.replace(/^(-{3,}|\*{3,}|_{3,})$/gm, "<hr>")
+
+  // 表格处理（在列表之前处理）
+  html = processMarkdownTables(html)
 
   // 任务列表
   html = html.replace(/^(\s*)- \[x\]\s+(.+)$/gim, '$1<li class="task-item checked"><input type="checkbox" checked disabled> $2</li>')
@@ -128,6 +134,140 @@ export function markdownToHtml(markdown: string): string {
     html = html.replace(`__CODE_BLOCK_${index}__`, block)
   })
 
+  // 脚注定义 [^id]: content
+  const footnoteDefinitions: string[] = []
+  html = html.replace(/^\[\^([^\]]+)\]:\s*(.+)$/gm, (match, id, content) => {
+    footnoteDefinitions.push(`<div class="footnote-item" id="fn-${id}"><sup>${id}</sup> ${content}</div>`)
+    return '' // 移除原始定义行
+  })
+
+  // 在文档末尾添加脚注列表
+  if (footnoteDefinitions.length > 0) {
+    html += '\n\n<div class="footnotes">\n<h3>脚注</h3>\n' + footnoteDefinitions.join('\n') + '\n</div>'
+  }
+
+  return html
+}
+
+function processMarkdownTables(html: string): string {
+  const lines = html.split('\n')
+  const result: string[] = []
+  let i = 0
+
+  while (i < lines.length) {
+    const line = lines[i]
+    
+    // 检查是否是表格行（包含 | 分隔符，且不是空行）
+    if (line.trim().includes('|') && line.trim() !== '' && !line.trim().startsWith('```')) {
+      const tableLines: string[] = []
+      let j = i
+      
+      // 收集连续的表格行
+      while (j < lines.length) {
+        const currentLine = lines[j].trim()
+        // 如果是空行，跳过但继续检查下一行
+        if (currentLine === '') {
+          j++
+          continue
+        }
+        // 如果包含 | 且不是代码块，认为是表格行
+        if (currentLine.includes('|') && !currentLine.startsWith('```')) {
+          tableLines.push(lines[j])
+          j++
+        } else {
+          // 不是表格行，停止收集
+          break
+        }
+      }
+      
+      if (tableLines.length >= 1) { // 改为至少1行就处理
+        // 转换表格
+        const tableHtml = convertTableToHtml(tableLines)
+        result.push(tableHtml)
+        i = j
+        continue
+      }
+    }
+    
+    result.push(line)
+    i++
+  }
+
+  return result.join('\n')
+}
+
+function convertTableToHtml(tableLines: string[]): string {
+  const rows: string[][] = []
+  let hasHeader = false
+  let maxColumns = 0
+  
+  for (let i = 0; i < tableLines.length; i++) {
+    const line = tableLines[i].trim()
+    
+    // 跳过分隔行（如 |---|---|）
+    if (line.match(/^\|[\s\-\|:]+\|$/)) {
+      hasHeader = true
+      continue
+    }
+    
+    // 解析表格行
+    const cells = line
+      .split('|')
+      .slice(1, -1) // 移除首尾空元素
+      .map(cell => cell.trim())
+    
+    if (cells.length > 0) {
+      rows.push(cells)
+      maxColumns = Math.max(maxColumns, cells.length)
+    }
+  }
+  
+  if (rows.length === 0) return ''
+  
+  // 确保所有行都有相同的列数
+  rows.forEach(row => {
+    while (row.length < maxColumns) {
+      row.push('') // 补充空单元格
+    }
+  })
+  
+  let html = '<table>\n'
+  
+  // 如果有标题行
+  if (hasHeader && rows.length > 0) {
+    html += '  <thead>\n'
+    html += '    <tr>\n'
+    rows[0].forEach(cell => {
+      html += `      <th>${cell}</th>\n`
+    })
+    html += '    </tr>\n'
+    html += '  </thead>\n'
+    
+    if (rows.length > 1) {
+      html += '  <tbody>\n'
+      for (let i = 1; i < rows.length; i++) {
+        html += '    <tr>\n'
+        rows[i].forEach(cell => {
+          html += `      <td>${cell}</td>\n`
+        })
+        html += '    </tr>\n'
+      }
+      html += '  </tbody>\n'
+    }
+  } else {
+    // 没有标题行，所有行都是数据行
+    html += '  <tbody>\n'
+    rows.forEach(row => {
+      html += '    <tr>\n'
+      row.forEach(cell => {
+        html += `      <td>${cell}</td>\n`
+      })
+      html += '    </tr>\n'
+    })
+    html += '  </tbody>\n'
+  }
+  
+  html += '</table>'
   return html
 }
 

@@ -40,6 +40,22 @@ export function EditorBubbleMenu({ editor }: MenuBarProps) {
   return (
     <BubbleMenu
       editor={editor}
+      shouldShow={({ editor, state, from, to }) => {
+        const { selection } = state
+        const { empty } = selection
+        
+        // 不显示如果：
+        // 1. 没有选中文本（空选择）
+        // 2. 在图片上
+        // 3. 在代码块中
+        // 4. 选择范围无效
+        if (empty || from === to || editor.isActive("image") || editor.isActive("codeBlock")) {
+          return false
+        }
+        
+        // 只在有有效文本选择时显示
+        return true
+      }}
       className="flex items-center gap-1 rounded-lg border bg-background p-1 shadow-md"
     >
       <button

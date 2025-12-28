@@ -8,6 +8,7 @@ export const FootnoteRef = Node.create({
   group: "inline",
   inline: true,
   atom: true,
+  selectable: false,
 
   addAttributes() {
     return {
@@ -37,8 +38,10 @@ export const FootnoteRef = Node.create({
         class: "footnote-ref cursor-pointer text-primary hover:underline",
         id: `fnref-${id}`,
         "data-footnote-id": id,
+        contenteditable: "false",
+        "data-type": "footnote-ref",
       }),
-      `[${label}]`,
+      ["span", {}, `[${label}]`],
     ]
   },
 })

@@ -3,12 +3,13 @@
  * 用于文章展示页面和编辑器，确保所见即所得
  */
 
-export type ContentTheme = "default" | "minimal" | "magazine" | "notion"
+export type ContentTheme = "default" | "minimal" | "magazine" | "notion" | "japanese"
 
 export interface ContentStyleConfig {
   theme: ContentTheme
   fontSize?: "sm" | "base" | "lg"
   lineHeight?: "normal" | "relaxed" | "loose"
+  spacing?: "compact" | "normal" | "loose"
 }
 
 /**
@@ -35,6 +36,11 @@ export function getContentClassName(config: ContentStyleConfig = { theme: "defau
     classes.push(`content-leading-${config.lineHeight}`)
   }
   
+  // 间距
+  if (config.spacing) {
+    classes.push(`content-spacing-${config.spacing}`)
+  }
+  
   return classes.join(" ")
 }
 
@@ -59,4 +65,15 @@ export const defaultContentConfig: ContentStyleConfig = {
   theme: "default",
   fontSize: "base",
   lineHeight: "relaxed",
+  spacing: "normal",
+}
+
+/**
+ * 日式简约配置
+ */
+export const japaneseContentConfig: ContentStyleConfig = {
+  theme: "japanese",
+  fontSize: "base",
+  lineHeight: "loose",
+  spacing: "loose",
 }

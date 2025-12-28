@@ -37,7 +37,9 @@ export const Details = Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ["details", mergeAttributes(HTMLAttributes), 0]
+    return ["details", mergeAttributes(HTMLAttributes, {
+      class: "my-4 border border-border rounded-lg overflow-hidden"
+    }), 0]
   },
 
   addCommands() {
@@ -51,9 +53,9 @@ export const Details = Node.create({
               content: [
                 {
                   type: "detailsSummary",
-                  content: [{ type: "text", text: title || "详情" }],
+                  content: [{ type: "text", text: title || "点击展开详情" }],
                 },
-                { type: "paragraph" },
+                { type: "paragraph", content: [{ type: "text", text: "在这里添加折叠内容..." }] },
               ],
             })
           },
