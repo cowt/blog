@@ -207,17 +207,17 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
 
   // 普通段落
   const inlineContent = parseInline(line, fnCtx)
-  
+
   // 检测行首的空格缩进
   const leadingSpaces = line.match(/^(\s*)/)?.[1] || ""
   const indentLevel = Math.floor(leadingSpaces.length / 2) // 每2个空格为一级缩进
-  
+
   return {
     node: {
       type: "paragraph",
       attrs: indentLevel > 0 ? { textIndent: indentLevel } : undefined,
       // 确保段落至少有内容，避免空内容错误
-      content: inlineContent.length > 0 ? inlineContent : undefined,
+      content: inlineContent.length > 0 ? inlineContent : [{ type: "text", text: " " }],
     },
     nextIndex: index + 1,
   }
@@ -802,15 +802,10 @@ function parseTable(lines: string[], index: number, fnCtx?: FootnoteContext): Pa
       const inlineContent = parseInline(cellContent, fnCtx)
       return {
         type: isFirstRow ? "tableHeader" : "tableCell",
-        content: inlineContent.length > 0 ? [
+        content: [
           {
             type: "paragraph",
-            content: inlineContent,
-          },
-        ] : [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: "" }],
+            content: inlineContent.length > 0 ? inlineContent : [{ type: "text", text: " " }],
           },
         ],
       }

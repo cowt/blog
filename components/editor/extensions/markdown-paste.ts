@@ -108,12 +108,6 @@ export const MarkdownPaste = Extension.create({
             const clipboardData = event.clipboardData
             if (!clipboardData) return false
 
-            // 如果有 HTML 内容，让 Tiptap 默认处理
-            const html = clipboardData.getData("text/html")
-            if (html && html.trim()) {
-              return false
-            }
-
             // 获取纯文本
             const text = clipboardData.getData("text/plain")
             if (!text || !text.trim()) {
