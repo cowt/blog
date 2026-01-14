@@ -1,4 +1,14 @@
 import TaskItem from "@tiptap/extension-task-item"
+import { CommandProps } from "@tiptap/core"
+
+// 扩展 Tiptap 的 Commands 接口，声明自定义命令
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    taskItem: {
+      toggleTask: () => ReturnType
+    }
+  }
+}
 
 /**
  * 自定义 TaskItem 扩展
@@ -19,6 +29,32 @@ export const CustomTaskItem = TaskItem.extend({
           "data-checked": attributes.checked,
         }),
       },
+    }
+  },
+
+  addCommands() {
+    return {
+      ...this.parent?.(),
+      toggleTask:
+        () =>
+        ({ commands, tr, state }: CommandProps) => {
+          // 查找当前光标位置的 taskItem 节点
+          const { $from } = state.selection
+          const taskItemPos = $from.before($from.depth)
+          const taskItemNode = tr.doc.nodeAt(taskItemPos)
+
+          if (taskItemNode && taskItemNode.type.name === "taskItem") {
+            // 切换 checked 状态
+            return commands.command(({ tr }) => {
+              tr.setNodeMarkup(taskItemPos, undefined, {
+                ...taskItemNode.attrs,
+                checked: !taskItemNode.attrs.checked,
+              })
+              return true
+            })
+          }
+          return false
+        },
     }
   },
 

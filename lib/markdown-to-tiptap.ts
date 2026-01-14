@@ -172,8 +172,8 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
     const attrs: Record<string, string> = {}
     const attrString = htmlImgMatch[1]
     
-    // 解析属性
-    const attrMatches = attrString.matchAll(/(\w+)="([^"]*)"/g)
+    // 解析属性（支持 data-* 属性）
+    const attrMatches = attrString.matchAll(/([\w-]+)="([^"]*)"/g)
     for (const match of attrMatches) {
       attrs[match[1]] = match[2]
     }
@@ -188,6 +188,7 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
           style: attrs.style || null,
           class: attrs.class || null,
           title: attrs.title || null,
+          "data-align": attrs["data-align"] || null,
         },
       },
       nextIndex: index + 1,
@@ -358,8 +359,8 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
       const attrs: Record<string, string> = {}
       const attrString = htmlImgMatch[1]
       
-      // 解析属性
-      const attrMatches = attrString.matchAll(/(\w+)="([^"]*)"/g)
+      // 解析属性（支持 data-* 属性）
+      const attrMatches = attrString.matchAll(/([\w-]+)="([^"]*)"/g)
       for (const match of attrMatches) {
         attrs[match[1]] = match[2]
       }
@@ -373,6 +374,7 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
           style: attrs.style || null,
           class: attrs.class || null,
           title: attrs.title || null,
+          "data-align": attrs["data-align"] || null,
         },
       })
       remaining = remaining.slice(htmlImgMatch[0].length)

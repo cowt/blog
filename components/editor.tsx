@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, lazy, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { savePostAction } from "@/app/actions"
 import { toast } from "sonner"
@@ -16,8 +16,26 @@ import { PublishModal } from "./editor/publish-modal"
 import { markdownToHtml } from "@/lib/markdown-to-html"
 import { ThemeToggle } from "@/components/theme-toggle"
 import Link from "next/link"
-import { TiptapEditor } from "./editor/tiptap-editor"
 import { getEditorClassName, defaultContentConfig, ContentStyleConfig } from "@/lib/content-styles"
+
+// 动态导入 TiptapEditor，实现代码分割和延迟加载
+const TiptapEditor = lazy(() =>
+  import("./editor/tiptap-editor").then((mod) => ({ default: mod.TiptapEditor }))
+)
+
+// 编辑器加载骨架屏
+function EditorSkeleton() {
+  return (
+    <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8 animate-pulse">
+      <div className="space-y-4">
+        <div className="h-10 bg-muted rounded w-3/4"></div>
+        <div className="h-4 bg-muted rounded w-full"></div>
+        <div className="h-4 bg-muted rounded w-5/6"></div>
+        <div className="h-4 bg-muted rounded w-4/6"></div>
+      </div>
+    </div>
+  )
+}
 
 interface EditorProps {
   initialPost?: {
@@ -345,12 +363,14 @@ export function Editor({ initialPost, newSlug, contentConfig = defaultContentCon
 
       {/* Editor Area */}
       <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full p-4 sm:p-6 lg:p-8">
-        <TiptapEditor
-          content={markdown}
-          onChange={setMarkdown}
-          onImageUpload={uploadImage}
-          className={getEditorClassName(contentConfig)}
-        />
+        <Suspense fallback={<EditorSkeleton />}>
+          <TiptapEditor
+            content={markdown}
+            onChange={setMarkdown}
+            onImageUpload={uploadImage}
+            className={getEditorClassName(contentConfig)}
+          />
+        </Suspense>
       </div>
 
       {/* Publish Modal */}

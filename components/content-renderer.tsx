@@ -2,7 +2,7 @@
 
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import Image from "@tiptap/extension-image"
+import { EnhancedImage } from "./editor/extensions/enhanced-image"
 import Link from "@tiptap/extension-link"
 import { Table } from "@tiptap/extension-table"
 import TableRow from "@tiptap/extension-table-row"
@@ -71,7 +71,9 @@ const createExtensions = () => [
     lowlight,
     defaultLanguage: "plaintext",
   }),
-  Image.configure({
+  EnhancedImage.configure({
+    inline: false,
+    allowBase64: true,
     HTMLAttributes: { class: "rounded-lg border border-border" },
   }),
   Link.configure({

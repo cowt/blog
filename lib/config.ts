@@ -2,6 +2,7 @@
 
 import { uploadFile, getFile } from "./storage"
 import type { ThemeConfig, AIConfig, S3Config } from "@/types"
+import { unstable_cache, revalidateTag } from "next/cache"
 
 const THEME_CONFIG_FILE = "config/theme.json"
 const AI_CONFIG_FILE = "config/ai.json"
@@ -49,34 +50,43 @@ const DEFAULT_S3_CONFIG: S3Config = {
 }
 
 // 主题配置管理
-export async function getThemeConfig(): Promise<ThemeConfig> {
-  try {
-    const json = await getFile(THEME_CONFIG_FILE)
-    if (!json) return DEFAULT_THEME_CONFIG
-    
-    const storedConfig = JSON.parse(json)
-    // Merge configs, but use default values for empty strings
-    return {
-      siteName: storedConfig.siteName || DEFAULT_THEME_CONFIG.siteName,
-      siteDescription: storedConfig.siteDescription || DEFAULT_THEME_CONFIG.siteDescription,
-      siteUrl: storedConfig.siteUrl || DEFAULT_THEME_CONFIG.siteUrl,
-      logo: storedConfig.logo || DEFAULT_THEME_CONFIG.logo,
-      favicon: storedConfig.favicon || DEFAULT_THEME_CONFIG.favicon,
-      theme: {
-        primaryColor: storedConfig.theme?.primaryColor || DEFAULT_THEME_CONFIG.theme?.primaryColor,
-        fontFamily: storedConfig.theme?.fontFamily || DEFAULT_THEME_CONFIG.theme?.fontFamily,
-      },
-      announcement: storedConfig.announcement ?? DEFAULT_THEME_CONFIG.announcement,
+const getCachedThemeConfig = unstable_cache(
+  async () => {
+    try {
+      const json = await getFile(THEME_CONFIG_FILE)
+      if (!json) return DEFAULT_THEME_CONFIG
+
+      const storedConfig = JSON.parse(json)
+      // Merge configs, but use default values for empty strings
+      return {
+        siteName: storedConfig.siteName || DEFAULT_THEME_CONFIG.siteName,
+        siteDescription: storedConfig.siteDescription || DEFAULT_THEME_CONFIG.siteDescription,
+        siteUrl: storedConfig.siteUrl || DEFAULT_THEME_CONFIG.siteUrl,
+        logo: storedConfig.logo || DEFAULT_THEME_CONFIG.logo,
+        favicon: storedConfig.favicon || DEFAULT_THEME_CONFIG.favicon,
+        theme: {
+          primaryColor: storedConfig.theme?.primaryColor || DEFAULT_THEME_CONFIG.theme?.primaryColor,
+          fontFamily: storedConfig.theme?.fontFamily || DEFAULT_THEME_CONFIG.theme?.fontFamily,
+        },
+        announcement: storedConfig.announcement ?? DEFAULT_THEME_CONFIG.announcement,
+      }
+    } catch (e) {
+      console.error("Error fetching theme config:", e)
+      return DEFAULT_THEME_CONFIG
     }
-  } catch (e) {
-    console.error("Error fetching theme config:", e)
-    return DEFAULT_THEME_CONFIG
-  }
+  },
+  ["theme-config"],
+  { revalidate: 300, tags: ["config", "theme-config"] }
+)
+
+export async function getThemeConfig(): Promise<ThemeConfig> {
+  return getCachedThemeConfig()
 }
 
 export async function saveThemeConfig(config: ThemeConfig) {
   try {
     await uploadFile(THEME_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
+    revalidateTag("theme-config", "fetch")
     return { success: true }
   } catch (e) {
     console.error("Error saving theme config:", e)
@@ -85,20 +95,29 @@ export async function saveThemeConfig(config: ThemeConfig) {
 }
 
 // AI 配置管理
+const getCachedAIConfig = unstable_cache(
+  async () => {
+    try {
+      const json = await getFile(AI_CONFIG_FILE)
+      if (!json) return DEFAULT_AI_CONFIG
+      return { ...DEFAULT_AI_CONFIG, ...JSON.parse(json) }
+    } catch (e) {
+      console.error("Error fetching AI config:", e)
+      return DEFAULT_AI_CONFIG
+    }
+  },
+  ["ai-config"],
+  { revalidate: 300, tags: ["config", "ai-config"] }
+)
+
 export async function getAIConfig(): Promise<AIConfig> {
-  try {
-    const json = await getFile(AI_CONFIG_FILE)
-    if (!json) return DEFAULT_AI_CONFIG
-    return { ...DEFAULT_AI_CONFIG, ...JSON.parse(json) }
-  } catch (e) {
-    console.error("Error fetching AI config:", e)
-    return DEFAULT_AI_CONFIG
-  }
+  return getCachedAIConfig()
 }
 
 export async function saveAIConfig(config: AIConfig) {
   try {
     await uploadFile(AI_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
+    revalidateTag("ai-config", "fetch")
     return { success: true }
   } catch (e) {
     console.error("Error saving AI config:", e)
@@ -107,20 +126,29 @@ export async function saveAIConfig(config: AIConfig) {
 }
 
 // S3 配置管理
+const getCachedS3Config = unstable_cache(
+  async () => {
+    try {
+      const json = await getFile(S3_CONFIG_FILE)
+      if (!json) return DEFAULT_S3_CONFIG
+      return { ...DEFAULT_S3_CONFIG, ...JSON.parse(json) }
+    } catch (e) {
+      console.error("Error fetching S3 config:", e)
+      return DEFAULT_S3_CONFIG
+    }
+  },
+  ["s3-config"],
+  { revalidate: 300, tags: ["config", "s3-config"] }
+)
+
 export async function getS3Config(): Promise<S3Config> {
-  try {
-    const json = await getFile(S3_CONFIG_FILE)
-    if (!json) return DEFAULT_S3_CONFIG
-    return { ...DEFAULT_S3_CONFIG, ...JSON.parse(json) }
-  } catch (e) {
-    console.error("Error fetching S3 config:", e)
-    return DEFAULT_S3_CONFIG
-  }
+  return getCachedS3Config()
 }
 
 export async function saveS3Config(config: S3Config) {
   try {
     await uploadFile(S3_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
+    revalidateTag("s3-config", "fetch")
     return { success: true }
   } catch (e) {
     console.error("Error saving S3 config:", e)

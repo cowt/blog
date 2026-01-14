@@ -17,7 +17,7 @@ let cachedConfig: string | null = null
 // 配置缓存（避免重复读取 S3）
 let configCache: S3Config | null = null
 let configCacheTime: number = 0
-const CONFIG_CACHE_TTL = 60 * 1000 // 缓存 60 秒
+const CONFIG_CACHE_TTL = 5 * 60 * 1000 // 缓存 5 分钟
 
 /**
  * 获取 S3 配置

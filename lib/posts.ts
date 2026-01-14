@@ -1,32 +1,53 @@
 import { uploadFile, getFile, deleteFile } from "./storage"
 import type { Post, PostMeta } from "@/types"
+import { unstable_cache, revalidateTag } from "next/cache"
 
 const INDEX_FILE = "posts/index.json"
 
-export async function getPosts(): Promise<PostMeta[]> {
-  try {
-    const json = await getFile(INDEX_FILE)
-    if (!json) {
-      // 索引文件不存在,初始化为空数组
-      await uploadFile(INDEX_FILE, JSON.stringify([]), "application/json")
+// 缓存文章索引，5 分钟过期
+const getCachedPosts = unstable_cache(
+  async () => {
+    try {
+      const json = await getFile(INDEX_FILE)
+      if (!json) {
+        // 索引文件不存在,初始化为空数组
+        await uploadFile(INDEX_FILE, JSON.stringify([]), "application/json")
+        return []
+      }
+      return JSON.parse(json) as PostMeta[]
+    } catch (e) {
+      console.error("Error fetching posts index:", e)
       return []
     }
-    return JSON.parse(json)
-  } catch (e) {
-    console.error("Error fetching posts index:", e)
-    return []
-  }
+  },
+  ["posts-index"],
+  { revalidate: 300, tags: ["posts"] }
+)
+
+export async function getPosts(): Promise<PostMeta[]> {
+  return getCachedPosts()
 }
 
+// 缓存单篇文章，5 分钟过期
+const getCachedPost = (slug: string) =>
+  unstable_cache(
+    async () => {
+      try {
+        const json = await getFile(`posts/${slug}.json`)
+        if (!json) return null
+        return JSON.parse(json) as Post
+      } catch (e) {
+        console.error(`Error fetching post ${slug}:`, e)
+        return null
+      }
+    },
+    [`post-${slug}`],
+    { revalidate: 300, tags: ["posts", `post-${slug}`] }
+  )
+
 export async function getPost(slug: string): Promise<Post | null> {
-  try {
-    const json = await getFile(`posts/${slug}.json`)
-    if (!json) return null
-    return JSON.parse(json)
-  } catch (e) {
-    console.error(`Error fetching post ${slug}:`, e)
-    return null
-  }
+  const getCached = getCachedPost(slug)
+  return getCached()
 }
 
 export async function savePost(post: Post) {
@@ -56,6 +77,10 @@ export async function savePost(post: Post) {
 
   await uploadFile(INDEX_FILE, JSON.stringify(posts), "application/json")
 
+  // 清除缓存
+  revalidateTag("posts", "fetch")
+  revalidateTag(`post-${post.slug}`, "fetch")
+
   return post
 }
 
@@ -73,11 +98,15 @@ export async function unpublishPost(slug: string) {
   // 3. Update the index
   const posts = await getPosts()
   const existingIndex = posts.findIndex((p) => p.slug === slug)
-  
+
   if (existingIndex >= 0) {
     posts[existingIndex].published = false
     await uploadFile(INDEX_FILE, JSON.stringify(posts), "application/json")
   }
+
+  // 清除缓存
+  revalidateTag("posts", "fetch")
+  revalidateTag(`post-${slug}`, "fetch")
 }
 
 export async function deletePost(slug: string) {
@@ -87,6 +116,10 @@ export async function deletePost(slug: string) {
   // 2. Update the index
   const posts = await getPosts()
   const newPosts = posts.filter((p) => p.slug !== slug)
-  
+
   await uploadFile(INDEX_FILE, JSON.stringify(newPosts), "application/json")
+
+  // 清除缓存
+  revalidateTag("posts", "fetch")
+  revalidateTag(`post-${slug}`, "fetch")
 }
