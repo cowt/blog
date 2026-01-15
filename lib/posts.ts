@@ -29,8 +29,8 @@ export async function getPosts(): Promise<PostMeta[]> {
 }
 
 // 缓存单篇文章，5 分钟过期
-const getCachedPost = (slug: string) =>
-  unstable_cache(
+export async function getPost(slug: string): Promise<Post | null> {
+  const getCached = unstable_cache(
     async () => {
       try {
         const json = await getFile(`posts/${slug}.json`)
@@ -44,9 +44,7 @@ const getCachedPost = (slug: string) =>
     [`post-${slug}`],
     { revalidate: 300, tags: ["posts", `post-${slug}`] }
   )
-
-export async function getPost(slug: string): Promise<Post | null> {
-  const getCached = getCachedPost(slug)
+  
   return getCached()
 }
 
@@ -78,8 +76,8 @@ export async function savePost(post: Post) {
   await uploadFile(INDEX_FILE, JSON.stringify(posts), "application/json")
 
   // 清除缓存
-  revalidateTag("posts", "fetch")
-  revalidateTag(`post-${post.slug}`, "fetch")
+  revalidateTag("posts", "max")
+  revalidateTag(`post-${post.slug}`, "max")
 
   return post
 }
@@ -105,8 +103,8 @@ export async function unpublishPost(slug: string) {
   }
 
   // 清除缓存
-  revalidateTag("posts", "fetch")
-  revalidateTag(`post-${slug}`, "fetch")
+  revalidateTag("posts", "max")
+  revalidateTag(`post-${slug}`, "max")
 }
 
 export async function deletePost(slug: string) {
@@ -120,6 +118,6 @@ export async function deletePost(slug: string) {
   await uploadFile(INDEX_FILE, JSON.stringify(newPosts), "application/json")
 
   // 清除缓存
-  revalidateTag("posts", "fetch")
-  revalidateTag(`post-${slug}`, "fetch")
+  revalidateTag("posts", "max")
+  revalidateTag(`post-${slug}`, "max")
 }

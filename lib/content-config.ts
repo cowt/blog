@@ -29,7 +29,7 @@ export async function saveContentConfig(config: ContentStyleConfig): Promise<voi
   try {
     await saveConfig(CONTENT_CONFIG_KEY, config)
     // 清除缓存
-    revalidateTag("content-config", "fetch")
+    revalidateTag("content-config", "max")
   } catch (error) {
     console.error("Failed to save content config:", error)
     throw error

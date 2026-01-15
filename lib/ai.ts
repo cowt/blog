@@ -8,7 +8,8 @@ export async function generateExcerpt(content: string): Promise<string | null> {
   try {
     const config = await getAIConfig()
     
-    if (!config.autoGenerateExcerpt || !config.apiKey) {
+    if (!config.apiKey) {
+      console.error("API Key is missing")
       return null
     }
 
@@ -31,9 +32,23 @@ export async function generateExcerpt(content: string): Promise<string | null> {
       max_tokens: 200,
     })
 
-    return completion.choices[0]?.message?.content?.trim() || null
+    if (!completion.choices || completion.choices.length === 0) {
+      console.error("OpenAI API returned empty choices:", completion)
+      return null
+    }
+
+    const result = completion.choices[0]?.message?.content?.trim()
+    if (!result) {
+      console.error("OpenAI API returned empty content")
+      return null
+    }
+
+    return result
   } catch (error) {
     console.error("Error generating excerpt:", error)
+    if (error instanceof Error) {
+      console.error("Error details:", error.message)
+    }
     return null
   }
 }
@@ -43,7 +58,7 @@ export async function generateCoverImagePrompt(title: string): Promise<string | 
   try {
     const config = await getAIConfig()
     
-    if (!config.autoGenerateCoverImage || !config.apiKey) {
+    if (!config.apiKey) {
       return null
     }
 
@@ -60,7 +75,8 @@ export async function generateCoverImage(title: string): Promise<string | null> 
   try {
     const config = await getAIConfig()
     
-    if (!config.autoGenerateCoverImage || !config.apiKey) {
+    if (!config.apiKey) {
+      console.error("API Key is missing")
       return null
     }
 
@@ -79,9 +95,17 @@ export async function generateCoverImage(title: string): Promise<string | null> 
       quality: "standard",
     })
 
-    return response.data?.[0]?.url || null
+    if (!response.data || response.data.length === 0) {
+      console.error("DALL-E API returned empty data:", response)
+      return null
+    }
+
+    return response.data[0]?.url || null
   } catch (error) {
     console.error("Error generating cover image:", error)
+    if (error instanceof Error) {
+      console.error("Error details:", error.message)
+    }
     return null
   }
 }
@@ -114,6 +138,11 @@ export async function generateTags(content: string): Promise<string[]> {
       max_tokens: 100,
     })
 
+    if (!completion.choices || completion.choices.length === 0) {
+      console.error("OpenAI API returned empty choices for tags")
+      return []
+    }
+
     const responseText = completion.choices[0]?.message?.content?.trim()
     if (!responseText) return []
 
@@ -138,4 +167,3 @@ export async function generateTags(content: string): Promise<string[]> {
     return []
   }
 }
-

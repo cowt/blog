@@ -86,7 +86,7 @@ export async function getThemeConfig(): Promise<ThemeConfig> {
 export async function saveThemeConfig(config: ThemeConfig) {
   try {
     await uploadFile(THEME_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
-    revalidateTag("theme-config", "fetch")
+    revalidateTag("theme-config", "max")
     return { success: true }
   } catch (e) {
     console.error("Error saving theme config:", e)
@@ -117,7 +117,7 @@ export async function getAIConfig(): Promise<AIConfig> {
 export async function saveAIConfig(config: AIConfig) {
   try {
     await uploadFile(AI_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
-    revalidateTag("ai-config", "fetch")
+    revalidateTag("ai-config", "max")
     return { success: true }
   } catch (e) {
     console.error("Error saving AI config:", e)
@@ -148,7 +148,7 @@ export async function getS3Config(): Promise<S3Config> {
 export async function saveS3Config(config: S3Config) {
   try {
     await uploadFile(S3_CONFIG_FILE, JSON.stringify(config, null, 2), "application/json")
-    revalidateTag("s3-config", "fetch")
+    revalidateTag("s3-config", "max")
     return { success: true }
   } catch (e) {
     console.error("Error saving S3 config:", e)

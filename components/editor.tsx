@@ -237,13 +237,18 @@ export function Editor({ initialPost, newSlug, contentConfig = defaultContentCon
     // Generate slug if missing
     let currentSlug = slug
     if (!currentSlug) {
-      currentSlug = title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "")
-      
-      if (!currentSlug) {
-        currentSlug = `draft-${Date.now()}`
+      // If title is "Untitled" or empty, always use timestamp to avoid conflicts
+      if (!title || title === "Untitled") {
+        currentSlug = `untitled-${Date.now()}`
+      } else {
+        currentSlug = title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)+/g, "")
+        
+        if (!currentSlug) {
+          currentSlug = `draft-${Date.now()}`
+        }
       }
       setSlug(currentSlug)
     }
