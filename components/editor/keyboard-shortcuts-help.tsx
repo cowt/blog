@@ -15,6 +15,9 @@ const shortcuts = [
     { keys: ["Cmd", "K"], description: "添加链接" },
     { keys: ["Cmd", "`"], description: "行内代码" },
   ]},
+  { category: "编辑", items: [
+    { keys: ["Cmd", "Shift", "Enter"], description: "重置样式并在新行开始" },
+  ]},
   { category: "标题", items: [
     { keys: ["Cmd", "Alt", "1"], description: "一级标题" },
     { keys: ["Cmd", "Alt", "2"], description: "二级标题" },

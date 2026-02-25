@@ -17,9 +17,9 @@ interface FootnoteContext {
  * 将 Markdown 转换为 Tiptap JSON 内容
  */
 export function markdownToTiptap(markdown: string): JSONContent {
-  // 先提取所有脚注定义
+  // 先提取所有脚注定义（支持 [^id]: content 和 [^id] content 两种格式）
   const footnoteDefinitions: Map<string, FootnoteDefinition> = new Map()
-  const footnotePattern = /^\[\^([^\]]+)\]:\s*(.+)$/gm
+  const footnotePattern = /^\[\^([^\]]+)\]:?\s+(.+)$/gm
   let match
   while ((match = footnotePattern.exec(markdown)) !== null) {
     footnoteDefinitions.set(match[1], {
@@ -29,7 +29,7 @@ export function markdownToTiptap(markdown: string): JSONContent {
   }
 
   // 移除脚注定义行
-  const cleanedMarkdown = markdown.replace(/^\[\^([^\]]+)\]:\s*.+$/gm, "")
+  const cleanedMarkdown = markdown.replace(/^\[\^([^\]]+)\]:?\s+.+$/gm, "")
 
   const lines = cleanedMarkdown.split("\n")
   const content: JSONContent[] = []
@@ -205,6 +205,11 @@ function parseLine(lines: string[], index: number, fnCtx?: FootnoteContext): Par
     return parseTable(lines, index, fnCtx)
   }
 
+  // HTML 表格
+  if (line.trim().startsWith("<table")) {
+    return parseHtmlTable(lines, index, fnCtx)
+  }
+
   // 普通段落
   const inlineContent = parseInline(line, fnCtx)
 
@@ -342,6 +347,20 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
       continue
     }
 
+    // 裸 URL 自动链接（显示文本 URL decode 中文）
+    const urlMatch = remaining.match(/^(https?:\/\/[^\s<>\[\]()]+)/)
+    if (urlMatch) {
+      let display: string
+      try { display = decodeURI(urlMatch[1]) } catch { display = urlMatch[1] }
+      content.push({
+        type: "text",
+        marks: [{ type: "link", attrs: { href: urlMatch[1] } }],
+        text: display,
+      })
+      remaining = remaining.slice(urlMatch[0].length)
+      continue
+    }
+
     // 图片 ![alt](src) 或 HTML img 标签
     const imgMatch = remaining.match(/^!\[([^\]]*)\]\(([^)]+)\)/)
     if (imgMatch) {
@@ -381,8 +400,8 @@ function parseInline(text: string, fnCtx?: FootnoteContext): JSONContent[] {
       continue
     }
 
-    // 普通文本（取到下一个特殊字符）
-    const textMatch = remaining.match(/^[^`*~\[!^$]+/)
+    // 普通文本（取到下一个特殊字符或 URL）
+    const textMatch = remaining.match(/^(?:(?!https?:\/\/)[^`*~\[!^$])+/)
     if (textMatch) {
       // 只添加非空文本节点
       if (textMatch[0]) {
@@ -817,6 +836,84 @@ function parseTable(lines: string[], index: number, fnCtx?: FootnoteContext): Pa
     })
 
     isFirstRow = false
+  }
+
+  return {
+    node: {
+      type: "table",
+      content: rows,
+    },
+    nextIndex: i,
+  }
+}
+
+function parseHtmlTable(lines: string[], index: number, fnCtx?: FootnoteContext): ParseResult {
+  // 收集所有行直到 </table>
+  let htmlContent = ""
+  let i = index
+
+  while (i < lines.length) {
+    htmlContent += lines[i]
+    if (lines[i].includes("</table>")) {
+      i++
+      break
+    }
+    htmlContent += "\n"
+    i++
+  }
+
+  const rows: JSONContent[] = []
+
+  // 提取所有 <tr> 行
+  const rowMatches = htmlContent.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)
+  for (const rowMatch of rowMatches) {
+    const rowContent = rowMatch[1]
+    const cells: JSONContent[] = []
+
+    // 提取 <th> 单元格
+    const thMatches = rowContent.matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)
+    for (const thMatch of thMatches) {
+      const cellText = thMatch[1].replace(/<[^>]*>/g, "").trim()
+      const inlineContent = parseInline(cellText, fnCtx)
+      cells.push({
+        type: "tableHeader",
+        content: [{
+          type: "paragraph",
+          content: inlineContent.length > 0 ? inlineContent : [{ type: "text", text: " " }],
+        }],
+      })
+    }
+
+    // 提取 <td> 单元格
+    const tdMatches = rowContent.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)
+    for (const tdMatch of tdMatches) {
+      const cellText = tdMatch[1].replace(/<[^>]*>/g, "").trim()
+      const inlineContent = parseInline(cellText, fnCtx)
+      cells.push({
+        type: "tableCell",
+        content: [{
+          type: "paragraph",
+          content: inlineContent.length > 0 ? inlineContent : [{ type: "text", text: " " }],
+        }],
+      })
+    }
+
+    if (cells.length > 0) {
+      rows.push({
+        type: "tableRow",
+        content: cells,
+      })
+    }
+  }
+
+  if (rows.length === 0) {
+    return {
+      node: {
+        type: "paragraph",
+        content: [{ type: "text", text: htmlContent }],
+      },
+      nextIndex: i,
+    }
   }
 
   return {

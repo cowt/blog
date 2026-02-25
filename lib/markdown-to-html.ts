@@ -13,6 +13,13 @@ export function markdownToHtml(markdown: string): string {
     return `__CODE_BLOCK_${index}__`
   })
 
+  // 提取并移除脚注定义（必须在脚注引用替换之前）
+  const footnoteMap = new Map<string, string>()
+  html = html.replace(/^\[\^([^\]]+)\](?::[ \t]*|[ \t]+)(.+)$/gm, (_match, id, content) => {
+    footnoteMap.set(id, content)
+    return ''
+  })
+
   // 行内代码
   html = html.replace(/`([^`]+)`/g, "<code>$1</code>")
 
@@ -48,7 +55,14 @@ export function markdownToHtml(markdown: string): string {
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
 
   // 脚注引用 [^id]
-  html = html.replace(/\[\^([^\]]+)\]/g, '<sup class="footnote-ref">$1</sup>')
+  let footnoteRefCounter = 0
+  html = html.replace(/\[\^([^\]]+)\]/g, (_match, id) => {
+    if (footnoteMap.has(id)) {
+      footnoteRefCounter++
+      return `<sup class="footnote-ref" id="fnref-${id}" data-footnote-id="${id}"><a href="#fn-${id}">${footnoteRefCounter}</a></sup>`
+    }
+    return `<sup class="footnote-ref">${id}</sup>`
+  })
 
   // 图片
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
@@ -104,6 +118,9 @@ export function markdownToHtml(markdown: string): string {
       trimmed.startsWith("<pre") ||
       trimmed.startsWith("<hr") ||
       trimmed.startsWith("<div") ||
+      trimmed.startsWith("<table") ||
+      trimmed.startsWith("<section") ||
+      trimmed.startsWith("<sup") ||
       trimmed.startsWith("</") ||
       trimmed.startsWith("__CODE_BLOCK_")
     ) {
@@ -134,16 +151,22 @@ export function markdownToHtml(markdown: string): string {
     html = html.replace(`__CODE_BLOCK_${index}__`, block)
   })
 
-  // 脚注定义 [^id]: content
-  const footnoteDefinitions: string[] = []
-  html = html.replace(/^\[\^([^\]]+)\]:\s*(.+)$/gm, (match, id, content) => {
-    footnoteDefinitions.push(`<div class="footnote-item" id="fn-${id}"><sup>${id}</sup> ${content}</div>`)
-    return '' // 移除原始定义行
-  })
-
   // 在文档末尾添加脚注列表
-  if (footnoteDefinitions.length > 0) {
-    html += '\n\n<div class="footnotes">\n<h3>脚注</h3>\n' + footnoteDefinitions.join('\n') + '\n</div>'
+  if (footnoteMap.size > 0) {
+    const items: string[] = []
+    for (const [id, content] of footnoteMap) {
+      // 将裸 URL 转换为链接，显示文本 URL decode 中文
+      const linkedContent = content.replace(
+        /(https?:\/\/[^\s<>\[\]()]+)/g,
+        (url) => {
+          let display: string
+          try { display = decodeURI(url) } catch { display = url }
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${display}</a>`
+        }
+      )
+      items.push(`<li class="footnote-item" id="fn-${id}"><span class="footnote-content">${linkedContent}</span> <a href="#fnref-${id}" class="footnote-backref" data-footnote-backref="${id}">↩</a></li>`)
+    }
+    html += '\n\n<section class="footnotes">\n<ol class="footnotes-list">\n' + items.join('\n') + '\n</ol>\n</section>'
   }
 
   return html

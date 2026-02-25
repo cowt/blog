@@ -66,17 +66,6 @@ export const MathInline = Node.create({
           })
         })
         dom.innerHTML = rendered
-        
-        // 移动端额外样式 - 更激进的缩放确保无滚动条
-        if (isMobile) {
-          dom.style.maxWidth = "100%"
-          dom.style.overflow = "hidden"
-          dom.style.whiteSpace = "nowrap"
-          dom.style.display = "inline-block"
-          dom.style.transformOrigin = "left center"
-          dom.style.transform = "scale(0.7)"
-          dom.style.boxSizing = "border-box"
-        }
       } catch {
         dom.textContent = node.attrs.latex
       }

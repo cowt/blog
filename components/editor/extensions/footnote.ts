@@ -41,7 +41,7 @@ export const FootnoteRef = Node.create({
         contenteditable: "false",
         "data-type": "footnote-ref",
       }),
-      ["span", {}, `[${label}]`],
+      ["span", {}, `${label}`],
     ]
   },
 })
@@ -68,11 +68,6 @@ export const FootnoteList = Node.create({
       mergeAttributes(HTMLAttributes, {
         class: "footnotes",
       }),
-      [
-        "h2",
-        { class: "footnotes-title" },
-        "脚注",
-      ],
       [
         "ol",
         { class: "footnotes-list" },

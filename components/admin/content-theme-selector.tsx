@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ContentTheme, ContentStyleConfig, getContentClassName } from "@/lib/content-styles"
+import { cn } from "@/lib/utils"
 
 interface ContentThemeSelectorProps {
   currentConfig: ContentStyleConfig
@@ -16,47 +16,65 @@ const themeOptions: { value: ContentTheme; label: string; description: string }[
   {
     value: "default",
     label: "默认主题",
-    description: "平衡的间距和绿色强调色，适合大多数内容"
+    description: "自然绿色调，渐变装饰线，温暖清新"
   },
   {
     value: "minimal",
-    label: "极简主题", 
-    description: "简洁的设计，去除装饰性元素"
+    label: "极简主题",
+    description: "纯粹黑白，克制内敛，无装饰元素"
   },
   {
     value: "magazine",
     label: "杂志主题",
-    description: "衬线字体和首字母放大，适合长文章"
+    description: "衬线正文 + 无衬线标题，首字母放大，经典红色强调"
   },
   {
     value: "notion",
-    label: "Notion主题",
-    description: "紧凑的布局和蓝色强调色"
+    label: "Notion 主题",
+    description: "紧凑工具风，蓝色链接下划线，红色行内代码"
   },
   {
     value: "japanese",
     label: "日式简约",
-    description: "宽松的间距和优雅的排版，提高可读性"
+    description: "宽松行距，段落首缩进，居中标题装饰线"
   }
 ]
 
 const fontSizeOptions = [
-  { value: "sm", label: "小号 (14px)" },
-  { value: "base", label: "标准 (16px)" },
-  { value: "lg", label: "大号 (18px)" }
+  { value: "xs", label: "紧凑 (12px)" },
+  { value: "sm", label: "标准 (14px)" },
+  { value: "base", label: "大号 (16px)" },
+  { value: "lg", label: "特大 (18px)" }
 ]
 
 const lineHeightOptions = [
-  { value: "normal", label: "紧凑 (1.6)" },
+  { value: "tight", label: "紧凑 (1.4)" },
+  { value: "normal", label: "标准 (1.6)" },
   { value: "relaxed", label: "舒适 (1.8)" },
   { value: "loose", label: "宽松 (2.0)" }
 ]
 
 const spacingOptions = [
-  { value: "compact", label: "紧凑间距" },
-  { value: "normal", label: "标准间距" },
-  { value: "loose", label: "宽松间距" }
+  { value: "tight", label: "紧凑间距" },
+  { value: "compact", label: "标准间距" },
+  { value: "normal", label: "宽松间距" },
+  { value: "loose", label: "特宽间距" }
 ]
+
+function buildPreviewHTML(): string {
+  return [
+    '<h1>示例标题</h1>',
+    '<p>这是一个段落示例，用于展示当前主题的文本样式和间距效果。中英文混排 Typography 的间距处理也会在此体现。</p>',
+    '<h2>二级标题</h2>',
+    '<h3>三级标题</h3>',
+    '<p>段落中的<strong>加粗文本</strong>和<em>强调文本</em>以及<mark>高亮标记</mark>的样式差异。</p>',
+    '<ul><li>列表项目一</li><li>列表项目二</li><li>列表项目三</li></ul>',
+    '<blockquote><p>这是一个引用块的示例，展示引用样式。</p></blockquote>',
+    '<p><code>inline code</code> 和普通文本的混合效果。</p>',
+    '<hr />',
+    '<p>分割线上方的内容与下方的内容。</p>',
+  ].join('')
+}
 
 export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentThemeSelectorProps) {
   const [config, setConfig] = useState<ContentStyleConfig>(currentConfig)
@@ -67,21 +85,7 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
     onConfigChange(newConfig)
   }
 
-  const previewText = `
-# 示例标题
-
-这是一个段落示例，用于展示当前主题的文本样式和间距效果。
-
-## 二级标题
-
-- 列表项目一
-- 列表项目二
-- 列表项目三
-
-> 这是一个引用块的示例，展示引用样式。
-
-\`inline code\` 和普通文本的混合效果。
-  `.trim()
+  const selectedTheme = themeOptions.find(t => t.value === config.theme)
 
   return (
     <div className="space-y-6">
@@ -100,20 +104,20 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
               value={config.theme}
               onValueChange={(value: ContentTheme) => handleConfigUpdate({ theme: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {themeOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    <div>
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-sm text-muted-foreground">{option.description}</div>
-                    </div>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {selectedTheme && (
+              <p className="text-xs text-muted-foreground">{selectedTheme.description}</p>
+            )}
           </div>
 
           {/* 字体大小 */}
@@ -121,9 +125,9 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
             <Label>字体大小</Label>
             <Select
               value={config.fontSize || "base"}
-              onValueChange={(value: "sm" | "base" | "lg") => handleConfigUpdate({ fontSize: value })}
+              onValueChange={(value: "xs" | "sm" | "base" | "lg") => handleConfigUpdate({ fontSize: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -141,9 +145,9 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
             <Label>行高</Label>
             <Select
               value={config.lineHeight || "relaxed"}
-              onValueChange={(value: "normal" | "relaxed" | "loose") => handleConfigUpdate({ lineHeight: value })}
+              onValueChange={(value: "tight" | "normal" | "relaxed" | "loose") => handleConfigUpdate({ lineHeight: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -161,9 +165,9 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
             <Label>间距</Label>
             <Select
               value={config.spacing || "normal"}
-              onValueChange={(value: "compact" | "normal" | "loose") => handleConfigUpdate({ spacing: value })}
+              onValueChange={(value: "tight" | "compact" | "normal" | "loose") => handleConfigUpdate({ spacing: value })}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -187,23 +191,11 @@ export function ContentThemeSelector({ currentConfig, onConfigChange }: ContentT
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className={`${getContentClassName(config)} border rounded-lg p-6 bg-background`}>
-            <div dangerouslySetInnerHTML={{ __html: previewText.split('\n').map(line => {
-              if (line.startsWith('# ')) {
-                return `<h1>${line.slice(2)}</h1>`
-              } else if (line.startsWith('## ')) {
-                return `<h2>${line.slice(3)}</h2>`
-              } else if (line.startsWith('- ')) {
-                return `<li>${line.slice(2)}</li>`
-              } else if (line.startsWith('> ')) {
-                return `<blockquote><p>${line.slice(2)}</p></blockquote>`
-              } else if (line.includes('`')) {
-                return `<p>${line.replace(/`([^`]+)`/g, '<code>$1</code>')}</p>`
-              } else if (line.trim()) {
-                return `<p>${line}</p>`
-              }
-              return ''
-            }).join('') }} />
+          <div className={cn(
+            getContentClassName(config),
+            "border rounded-lg p-6 bg-background overflow-hidden"
+          )}>
+            <div dangerouslySetInnerHTML={{ __html: buildPreviewHTML() }} />
           </div>
         </CardContent>
       </Card>

@@ -34,6 +34,20 @@ async function initMermaid(forceReinit = false) {
     edgeLabelBackground: "#1e293b",
     textColor: "#f8fafc",
     nodeTextColor: "#f8fafc",
+    // 额外文字颜色覆盖
+    labelTextColor: "#f8fafc",
+    actorTextColor: "#f8fafc",
+    signalTextColor: "#f8fafc",
+    loopTextColor: "#f8fafc",
+    noteBkgColor: "#334155",
+    noteTextColor: "#f8fafc",
+    noteBorderColor: "#475569",
+    sectionBkgColor: "#334155",
+    altSectionBkgColor: "#1e293b",
+    taskTextColor: "#f8fafc",
+    taskTextOutsideColor: "#f8fafc",
+    fontFamily: "ui-sans-serif, system-ui, sans-serif",
+    fontSize: "14px",
   }
   
   mermaid.initialize({
@@ -243,6 +257,23 @@ export const Mermaid = Node.create({
       updateButtonStyles()
       renderPreview()
 
+      // 监听主题变化，自动重新渲染预览
+      let themeAtRender = isDarkMode() ? "dark" : "light"
+      let observer: MutationObserver | null = null
+      if (typeof MutationObserver !== "undefined") {
+        observer = new MutationObserver(() => {
+          const newTheme = isDarkMode() ? "dark" : "light"
+          if (newTheme !== themeAtRender) {
+            themeAtRender = newTheme
+            renderPreview()
+          }
+        })
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class"],
+        })
+      }
+
       return {
         dom,
         update: (updatedNode) => {
@@ -258,6 +289,12 @@ export const Mermaid = Node.create({
         stopEvent: (event) => {
           if (event.target === textarea) return true
           return false
+        },
+        destroy() {
+          if (observer) {
+            observer.disconnect()
+            observer = null
+          }
         },
       }
     }

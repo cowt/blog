@@ -110,17 +110,9 @@ const createExtensions = () => [
 function FullRenderer({ content, className }: { content: string; className?: string }) {
   // 确保只在客户端渲染，避免 hydration mismatch
   const [isMounted, setIsMounted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
-    // 检测移动端
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   // 预先解析内容，避免重复解析
@@ -132,13 +124,10 @@ function FullRenderer({ content, className }: { content: string; className?: str
   // 缓存扩展配置
   const extensions = useMemo(() => createExtensions(), [])
 
-  // 缓存 className，移动端添加特殊样式
+  // 缓存 className
   const editorClassName = useMemo(
-    () => {
-      const baseClass = className || getArticleClassName(defaultContentConfig)
-      return isMobile ? `${baseClass} mobile-math-optimized` : baseClass
-    },
-    [className, isMobile]
+    () => className || getArticleClassName(defaultContentConfig),
+    [className]
   )
 
   const editor = useEditor({
@@ -160,18 +149,29 @@ function FullRenderer({ content, className }: { content: string; className?: str
     // 点击脚注引用 -> 跳转到脚注
     const footnoteRef = target.closest("[data-footnote-id]") as HTMLElement
     if (footnoteRef) {
+      e.preventDefault()
       const id = footnoteRef.getAttribute("data-footnote-id")
       const footnoteItem = document.getElementById(`fn-${id}`)
-      footnoteItem?.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (footnoteItem) {
+        footnoteItem.scrollIntoView({ behavior: "smooth", block: "center" })
+        // 添加高亮动画
+        footnoteItem.classList.add("footnote-highlight")
+        setTimeout(() => footnoteItem.classList.remove("footnote-highlight"), 2000)
+      }
       return
     }
 
     // 点击返回按钮 -> 跳转回引用位置
     const backref = target.closest("[data-footnote-backref]") as HTMLElement
     if (backref) {
+      e.preventDefault()
       const id = backref.getAttribute("data-footnote-backref")
       const refElement = document.getElementById(`fnref-${id}`)
-      refElement?.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (refElement) {
+        refElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        refElement.classList.add("footnote-highlight")
+        setTimeout(() => refElement.classList.remove("footnote-highlight"), 2000)
+      }
     }
   }, [])
 

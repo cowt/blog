@@ -1,6 +1,7 @@
 "use client"
 
 import { useEditor, EditorContent } from "@tiptap/react"
+import { Extension, Editor } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
 import Link from "@tiptap/extension-link"
 import Placeholder from "@tiptap/extension-placeholder"
@@ -9,6 +10,7 @@ import TableRow from "@tiptap/extension-table-row"
 import TableCell from "@tiptap/extension-table-cell"
 import TableHeader from "@tiptap/extension-table-header"
 import TaskList from "@tiptap/extension-task-list"
+import { ListKeymap } from "@tiptap/extension-list"
 import Superscript from "@tiptap/extension-superscript"
 import Subscript from "@tiptap/extension-subscript"
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
@@ -26,11 +28,12 @@ import { MathBlock } from "./extensions/math-block"
 import { Mermaid } from "./extensions/mermaid"
 import { CodeBlockView } from "./extensions/code-block-lowlight-view"
 import { ReactNodeViewRenderer } from "@tiptap/react"
+import { TextSelection } from "@tiptap/pm/state"
 import { EditorBubbleMenu } from "./bubble-menu"
 import { ImageBubbleMenu } from "./image-bubble-menu"
 import { TableMenu } from "./table-menu"
 import { Toolbar } from "./toolbar"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { tiptapToMarkdown } from "@/lib/tiptap-markdown"
 import { markdownToTiptap } from "@/lib/markdown-to-tiptap"
 import { getEditorClassName, defaultContentConfig } from "@/lib/content-styles"
@@ -47,13 +50,65 @@ interface TiptapEditorProps {
 export function TiptapEditor({ content, onChange, onImageUpload, className }: TiptapEditorProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [initialContent, setInitialContent] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const insertDefaultParagraph = useCallback((editorInstance: Editor) => {
+    const { state, view } = editorInstance
+    const { $from } = state.selection
+    const paragraph = state.schema.nodes.paragraph.createAndFill()
+
+    if (!paragraph) return false
+
+    const insertPos = $from.depth >= 1
+      ? $from.after(1)
+      : state.doc.content.size
+    const tr = state.tr.insert(insertPos, paragraph)
+    tr.setSelection(TextSelection.create(tr.doc, insertPos + 1))
+    tr.setStoredMarks([])
+    tr.scrollIntoView()
+    view.dispatch(tr)
+    return true
+  }, [])
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-        codeBlock: false, // 使用 CodeBlockLowlight 替代
+        codeBlock: false,
         link: false,
+      }),
+      ListKeymap,
+      Extension.create({
+        name: 'customKeyboardShortcuts',
+        addKeyboardShortcuts() {
+          return {
+            'Enter': () => {
+              const { state } = this.editor
+              const { $from } = state.selection
+
+              const isInOrderedList = this.editor.isActive('orderedList')
+              const isInBulletList = this.editor.isActive('bulletList')
+              const isInTaskList = this.editor.isActive('taskList')
+              const isInTaskItem = this.editor.isActive('taskItem')
+              const isInListItem = this.editor.isActive('listItem')
+
+              if ((isInOrderedList || isInBulletList) && isInListItem && $from.parent.textContent.trim() === '') {
+                if (isInOrderedList) {
+                  return this.editor.commands.toggleList('orderedList', 'listItem')
+                }
+                return this.editor.commands.toggleList('bulletList', 'listItem')
+              }
+
+              if (isInTaskList && isInTaskItem && $from.parent.textContent.trim() === '') {
+                return this.editor.commands.toggleTaskList()
+              }
+
+              return false
+            },
+            'Shift-Enter': () => this.editor.commands.splitBlock(),
+            'Mod-Shift-Enter': () => insertDefaultParagraph(this.editor),
+          }
+        },
       }),
       CodeBlockLowlight.extend({
         addNodeView() {
@@ -158,11 +213,23 @@ export function TiptapEditor({ content, onChange, onImageUpload, className }: Ti
       },
     },
     onUpdate: ({ editor }) => {
-      const markdown = tiptapToMarkdown(editor.state.doc)
-      onChange(markdown)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => {
+        const markdown = tiptapToMarkdown(editor.state.doc)
+        onChange(markdown)
+      }, 300)
     },
     immediatelyRender: false,
+    enableInputRules: true,
+    enablePasteRules: true,
   })
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (!editor) return
@@ -177,22 +244,55 @@ export function TiptapEditor({ content, onChange, onImageUpload, className }: Ti
     }
   }, [content, editor, isMounted, initialContent])
 
+  // Mod-Shift-Enter fallback for edge cases
+  useEffect(() => {
+    if (!editor) return
+
+    const editorElement = editor.view.dom
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === 'Enter' &&
+        event.shiftKey &&
+        (event.metaKey || event.ctrlKey)
+      ) {
+        if (!event.defaultPrevented) {
+          event.preventDefault()
+          insertDefaultParagraph(editor)
+        }
+      }
+    }
+
+    editorElement.addEventListener('keydown', handleKeyDown)
+    return () => editorElement.removeEventListener('keydown', handleKeyDown)
+  }, [editor, insertDefaultParagraph])
+
   const handleFootnoteClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement
 
     const footnoteRef = target.closest("[data-footnote-id]") as HTMLElement
     if (footnoteRef) {
+      e.preventDefault()
       const id = footnoteRef.getAttribute("data-footnote-id")
       const footnoteItem = document.getElementById(`fn-${id}`)
-      footnoteItem?.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (footnoteItem) {
+        footnoteItem.scrollIntoView({ behavior: "smooth", block: "center" })
+        footnoteItem.classList.add("footnote-highlight")
+        setTimeout(() => footnoteItem.classList.remove("footnote-highlight"), 2000)
+      }
       return
     }
 
     const backref = target.closest("[data-footnote-backref]") as HTMLElement
     if (backref) {
+      e.preventDefault()
       const id = backref.getAttribute("data-footnote-backref")
       const refElement = document.getElementById(`fnref-${id}`)
-      refElement?.scrollIntoView({ behavior: "smooth", block: "center" })
+      if (refElement) {
+        refElement.scrollIntoView({ behavior: "smooth", block: "center" })
+        refElement.classList.add("footnote-highlight")
+        setTimeout(() => refElement.classList.remove("footnote-highlight"), 2000)
+      }
     }
   }, [])
 

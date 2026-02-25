@@ -7,9 +7,9 @@ export type ContentTheme = "default" | "minimal" | "magazine" | "notion" | "japa
 
 export interface ContentStyleConfig {
   theme: ContentTheme
-  fontSize?: "sm" | "base" | "lg"
-  lineHeight?: "normal" | "relaxed" | "loose"
-  spacing?: "compact" | "normal" | "loose"
+  fontSize?: "xs" | "sm" | "base" | "lg"
+  lineHeight?: "tight" | "normal" | "relaxed" | "loose"
+  spacing?: "tight" | "compact" | "normal" | "loose"
 }
 
 /**
@@ -63,9 +63,9 @@ export function getArticleClassName(config: ContentStyleConfig = { theme: "defau
  */
 export const defaultContentConfig: ContentStyleConfig = {
   theme: "default",
-  fontSize: "base",
-  lineHeight: "relaxed",
-  spacing: "normal",
+  fontSize: "sm",
+  lineHeight: "normal",
+  spacing: "compact",
 }
 
 /**

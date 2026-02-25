@@ -21,9 +21,56 @@
   --content-primary: #42b983;
   --content-quote-bg: hsl(var(--muted) / 0.3);
   --content-code-bg: #282c34;
+
+  /* 可控排版变量（由 leading/spacing 变体类覆盖）*/
+  /* 默认值 = compact 间距 + normal 行高 */
+  --content-line-height: 1.6;
+  --content-p-mb: 0.75rem;
+  --content-h1-mt: 2rem;
+  --content-h1-mb: 1rem;
+  --content-h2-mt: 1.5rem;
+  --content-h2-mb: 0.75rem;
+  --content-h3-mt: 1.25rem;
+  --content-h3-mb: 0.5rem;
+  --content-img-my: 1rem;
+
+  /* heti 理念：CJK 字间距提升可读性 */
+  letter-spacing: 0.02em;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+/* 英文/代码/链接恢复正常字间距（参考 heti） */
+.content-body a,
+.content-body code,
+.content-body kbd,
+.content-body samp {
+  letter-spacing: normal;
+}
+
+/* 首尾元素去除多余 margin（参考 heti） */
+.content-body > *:first-child {
+  margin-top: 0 !important;
+}
+
+.content-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* 连续标题间距折叠（参考 heti） */
+.content-body h1 + h2,
+.content-body h2 + h3,
+.content-body h3 + h4,
+.content-body h4 + h5,
+.content-body h5 + h6 {
+  margin-top: 1rem;
 }
 
 /* 字体大小变体 */
+.content-text-xs {
+  @apply text-xs leading-5;
+}
+
 .content-text-sm {
   @apply text-sm leading-6;
 }
@@ -36,130 +83,92 @@
   @apply text-lg leading-8;
 }
 
-/* 行高变体 */
-.content-leading-normal {
-  line-height: 1.6;
-}
-
-.content-leading-relaxed {
-  line-height: 1.8;
-}
-
-.content-leading-loose {
-  line-height: 2;
-}
-
-/* 间距变体 */
-.content-spacing-compact p {
-  @apply mb-3;
-}
-
-.content-spacing-compact h1 {
-  @apply mt-8 mb-4;
-}
-
-.content-spacing-compact h2 {
-  @apply mt-6 mb-3;
-}
-
-.content-spacing-compact h3 {
-  @apply mt-5 mb-2;
-}
-
-.content-spacing-compact img {
-  @apply my-4;
-}
-
-.content-spacing-normal p {
-  @apply mb-5;
-}
-
-.content-spacing-normal h1 {
-  @apply mt-12 mb-6;
-}
-
-.content-spacing-normal h2 {
-  @apply mt-10 mb-5;
-}
-
-.content-spacing-normal h3 {
-  @apply mt-8 mb-4;
-}
-
-.content-spacing-normal img {
-  @apply my-6;
-}
-
-.content-spacing-loose p {
-  @apply mb-6;
-}
-
-.content-spacing-loose h1 {
-  @apply mt-16 mb-8;
-}
-
-.content-spacing-loose h2 {
-  @apply mt-12 mb-6;
-}
-
-.content-spacing-loose h3 {
-  @apply mt-10 mb-5;
-}
-
-.content-spacing-loose img {
-  @apply my-8;
-}
+/* 行高/间距变体 → 见文件末尾（需在主题定义之后，利用 CSS 级联覆盖） */
 
 /* ============================================
    标题样式 - 优化间距和层级
+   使用 em 单位，随 content-text-* 字体大小变体自动缩放
+   采用 mobile-first：基础 = 移动端字号，桌面端通过媒体查询放大
    ============================================ */
 .content-body h1 {
-  @apply text-3xl md:text-4xl font-bold mt-12 mb-6 tracking-tight;
+  @apply font-bold;
+  font-size: 1.5em;
+  margin-top: var(--content-h1-mt);
+  margin-bottom: var(--content-h1-mb);
   color: var(--foreground);
   line-height: 1.2;
+  letter-spacing: 0.05em; /* CJK 标题宽字距（参考 heti） */
 }
 
 .content-body h2 {
-  @apply text-2xl md:text-3xl font-bold mt-10 mb-5 tracking-tight;
+  @apply font-bold;
+  font-size: 1.25em;
+  margin-top: var(--content-h2-mt);
+  margin-bottom: var(--content-h2-mb);
   color: var(--foreground);
   line-height: 1.25;
+  letter-spacing: 0.05em;
 }
 
 .content-body h3 {
-  @apply text-xl md:text-2xl font-semibold mt-8 mb-4 pl-3 border-l-4;
+  @apply font-semibold pl-3 border-l-4;
+  font-size: 1.125em;
+  margin-top: var(--content-h3-mt);
+  margin-bottom: var(--content-h3-mb);
   border-color: var(--content-primary);
   color: var(--foreground);
   line-height: 1.3;
+  letter-spacing: 0.05em;
 }
 
 .content-body h4 {
-  @apply text-lg md:text-xl font-semibold mt-6 mb-3;
+  @apply font-semibold;
+  font-size: 1.125em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
   color: var(--foreground);
 }
 
 .content-body h5 {
-  @apply text-base md:text-lg font-semibold mt-5 mb-2;
+  @apply font-semibold;
+  font-size: 1em;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
   color: var(--foreground);
 }
 
 .content-body h6 {
-  @apply text-sm font-semibold mt-4 mb-2 uppercase tracking-wide;
+  @apply font-semibold uppercase tracking-wide;
+  font-size: 0.875em;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
   color: var(--muted-foreground);
+}
+
+/* 桌面端标题放大 */
+@media (min-width: 768px) {
+  .content-body h1 { font-size: 2.25em; }
+  .content-body h2 { font-size: 1.875em; }
+  .content-body h3 { font-size: 1.5em; }
+  .content-body h4 { font-size: 1.25em; }
+  .content-body h5 { font-size: 1.125em; }
 }
 
 /* ============================================
    段落和文本 - 优化间距和可读性
    ============================================ */
 .content-body p {
-  @apply mb-5;
-  letter-spacing: 0.01em;
-  line-height: 1.8; /* 提高行高以改善可读性 */
+  margin-bottom: var(--content-p-mb);
+  letter-spacing: 0.02em;
+  line-height: var(--content-line-height);
+  text-align: justify; /* CJK 两端对齐（参考 heti） */
 }
 
 .content-body strong {
   @apply font-semibold;
 }
 
+/* em 恢复浏览器默认斜体 */
 .content-body em {
   @apply italic;
 }
@@ -209,7 +218,7 @@
 
 .content-body li {
   @apply mb-2 pl-1;
-  line-height: 1.7; /* 提高行高 */
+  line-height: var(--content-line-height);
 }
 
 /* 嵌套列表 */
@@ -239,7 +248,7 @@
 
 /* label 只包含 checkbox */
 .content-body ul[data-type="taskList"] .task-item-label,
-.content-body ul[data-type="taskList"] li[data-type="taskItem"]>label {
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] > label {
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -249,16 +258,16 @@
 
 /* 内容区域 - span 或 div */
 .content-body ul[data-type="taskList"] .task-item-content,
-.content-body ul[data-type="taskList"] li[data-type="taskItem"]>div,
-.content-body ul[data-type="taskList"] li[data-type="taskItem"]>span {
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] > div,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] > span {
   flex: 1;
   min-width: 0;
 }
 
 /* 内容区域的段落去掉 margin */
-.content-body ul[data-type="taskList"] .task-item-content>p,
-.content-body ul[data-type="taskList"] li[data-type="taskItem"]>div>p,
-.content-body ul[data-type="taskList"] li[data-type="taskItem"]>span>p {
+.content-body ul[data-type="taskList"] .task-item-content > p,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] > div > p,
+.content-body ul[data-type="taskList"] li[data-type="taskItem"] > span > p {
   margin: 0;
   display: inline;
 }
@@ -279,8 +288,8 @@
 
 /* 已完成任务 */
 .content-body li[data-checked="true"] .task-item-content,
-.content-body li[data-checked="true"]>div,
-.content-body li[data-checked="true"]>span {
+.content-body li[data-checked="true"] > div,
+.content-body li[data-checked="true"] > span {
   text-decoration: line-through;
   color: var(--muted-foreground);
 }
@@ -299,7 +308,7 @@
   margin-bottom: 0.25rem;
 }
 
-.content-body li.task-list-item>input[type="checkbox"] {
+.content-body li.task-list-item > input[type="checkbox"] {
   margin-top: 4px;
   flex-shrink: 0;
 }
@@ -343,7 +352,9 @@
    图片 - 优化间距和视觉效果
    ============================================ */
 .content-body img {
-  @apply block mx-auto rounded-lg my-6 max-w-full h-auto border border-border;
+  @apply block mx-auto rounded-lg max-w-full h-auto border border-border;
+  margin-top: var(--content-img-my);
+  margin-bottom: var(--content-img-my);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
   display: block !important; /* 强制块级显示 */
 }
@@ -380,8 +391,6 @@
   float: none !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  margin-top: 1rem !important;
-  margin-bottom: 1rem !important;
 }
 
 /* 确保包含图片的元素也是块级 - 但排除表格单元格 */
@@ -463,197 +472,81 @@
    ============================================ */
 .content-body hr {
   @apply my-8 border-none h-px;
-  background-image: linear-gradient(to right,
-      transparent,
-      hsl(var(--border)),
-      transparent);
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--border)),
+    transparent
+  );
 }
 
 /* ============================================
-   表格 - 优化可读性和间距
+   表格 - 简洁样式
    ============================================ */
+
+/* 表格容器：仅负责溢出滚动 */
 .content-body .table-wrapper,
-.content-body>div:has(> table) {
-  @apply overflow-x-auto my-6 rounded-lg border; /* 添加圆角和边框 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+.content-body .tableWrapper,
+.content-body > div:has(> table) {
+  @apply overflow-x-auto my-6;
 }
 
-.content-body table,
-.content-body .tableWrapper table {
+/* 表格本身 */
+.content-body table {
   @apply text-sm;
   border-collapse: collapse;
   border-spacing: 0;
-  border: none !important; /* 移除表格外边框 */
-  table-layout: fixed; /* 改回固定布局，确保列宽相等 */
-  width: auto; /* 保持自动宽度 */
-  margin: 0 auto; /* 居中显示 */
+  table-layout: fixed;
+  width: auto;
+  margin: 0 auto;
 }
 
-@media (max-width: 640px) {
-  .content-body table {
-    @apply overflow-x-auto;
-    width: auto;
-    min-width: auto;
-  }
-}
-
+/* 单元格 */
 .content-body th,
-.content-body td,
-.content-body .tableWrapper th,
-.content-body .tableWrapper td {
-  @apply px-4 py-3 text-center align-middle; /* 改为居中对齐 */
-  border: 1px solid hsl(var(--border) / 0.5); /* 保留单元格内部边框 */
-  margin: 0;
-  position: relative;
-  box-sizing: border-box;
-  width: 120px; /* 固定宽度，确保所有列相等 */
-  height: 50px; /* 固定高度，确保所有行相等 */
-  white-space: nowrap; /* 防止文字换行 */
-  overflow: hidden; /* 隐藏溢出内容 */
-  text-overflow: ellipsis; /* 文字过长时显示省略号 */
+.content-body td {
+  @apply px-4 py-3 text-center align-middle;
+  border: 1px solid hsl(var(--border) / 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.content-body th,
-.content-body .tableWrapper th {
+/* 表头 */
+.content-body th {
   @apply font-medium text-foreground;
   background-color: hsl(var(--muted) / 0.6);
 }
 
-.dark .content-body th,
-.dark .content-body .tableWrapper th {
+.dark .content-body th {
   background-color: hsl(var(--muted) / 0.35);
 }
 
-.content-body td,
-.content-body .tableWrapper td {
-  @apply text-foreground;
-}
-
-/* 确保表格行无间隙 */
-.content-body tr,
-.content-body .tableWrapper tr {
+/* 单元格内段落 */
+.content-body td p,
+.content-body th p {
   margin: 0;
   padding: 0;
-}
-
-.content-body thead,
-.content-body tbody,
-.content-body .tableWrapper thead,
-.content-body .tableWrapper tbody {
-  margin: 0;
-  padding: 0;
-}
-
-/* Tiptap 表格内的段落样式 */
-.content-body .tableWrapper p {
-  margin: 0;
-  padding: 0;
+  display: inline;
   line-height: 1.5;
 }
 
-/* Tiptap 表格容器样式 */
-.content-body .tableWrapper {
-  @apply overflow-x-auto my-6;
-}
-
-/* 移除 Tiptap 表格容器的边框和圆角 */
-.content-body .tableWrapper {
-  border: none;
-  border-radius: 0;
-}
-
-/* 修复 Tiptap 表格的 colgroup 样式 */
-.content-body .tableWrapper colgroup col {
-  min-width: 80px;
-}
-
-/* 确保表格单元格内容正确对齐 */
-.content-body .tableWrapper th.relative,
-.content-body .tableWrapper td.relative {
-  vertical-align: top;
-}
-
-/* 脚注引用在表格中的样式 */
+/* 脚注引用在表格中 */
 .content-body .tableWrapper .footnote-ref {
   @apply text-primary hover:underline cursor-pointer;
   font-size: 0.75em;
   vertical-align: super;
-  display: inline !important;
+  display: inline;
 }
 
-/* 隐藏 ProseMirror 编辑器的内部元素，防止在渲染中显示 */
+/* 隐藏 ProseMirror 内部元素 */
 .content-body .ProseMirror-separator,
-.content-body .ProseMirror-trailingBreak,
-.content-body img.ProseMirror-separator,
-.content-body br.ProseMirror-trailingBreak {
+.content-body .ProseMirror-trailingBreak {
   display: none !important;
 }
 
-/* 确保表格中的脚注引用不会产生额外的换行 */
-.content-body .tableWrapper .footnote-ref + img,
-.content-body .tableWrapper .footnote-ref + br {
-  display: none !important;
-}
-
-/* 强制隐藏表格单元格中的所有ProseMirror内部元素 */
-.content-body .tableWrapper td .ProseMirror-separator,
-.content-body .tableWrapper th .ProseMirror-separator,
-.content-body .tableWrapper td .ProseMirror-trailingBreak,
-.content-body .tableWrapper th .ProseMirror-trailingBreak,
-.content-body .tableWrapper td img.ProseMirror-separator,
-.content-body .tableWrapper th img.ProseMirror-separator,
-.content-body .tableWrapper td br.ProseMirror-trailingBreak,
-.content-body .tableWrapper th br.ProseMirror-trailingBreak {
-  display: none !important;
-}
-
-/* 确保表格单元格内容为行内显示 */
-.content-body .tableWrapper td p,
-.content-body .tableWrapper th p {
-  display: inline !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* 强制表格单元格中的所有内容都为行内显示 */
-.content-body .tableWrapper td *:not(.footnote-ref),
-.content-body .tableWrapper th *:not(.footnote-ref) {
-  display: inline !important;
-}
-
-/* 但是保持脚注引用为上标 */
-.content-body .tableWrapper .footnote-ref {
-  display: inline !important;
-  vertical-align: super !important;
-}
-
-/* 确保表格单元格不会有多余的空白 */
-.content-body .tableWrapper td,
-.content-body .tableWrapper th {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2 !important;
-  display: table-cell !important; /* 强制表格单元格显示 */
-}
-
-/* 确保表格本身正确显示 */
-.content-body .tableWrapper table {
-  display: table !important;
-}
-
-.content-body .tableWrapper tr {
-  display: table-row !important;
-}
-
-/* 覆盖可能影响表格的全局样式 */
-.content-body .tableWrapper td *,
-.content-body .tableWrapper th * {
-  width: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  clear: none !important;
-  float: none !important;
+/* colgroup 最小宽度 */
+.content-body .tableWrapper colgroup col {
+  min-width: 80px;
 }
 
 /* ============================================
@@ -759,15 +652,15 @@
 }
 
 /* details 内容区域 */
-.content-body details>*:not(summary) {
+.content-body details > *:not(summary) {
   @apply px-4;
 }
 
-.content-body details>*:not(summary):first-of-type {
+.content-body details > *:not(summary):first-of-type {
   @apply pt-3;
 }
 
-.content-body details>*:not(summary):last-child {
+.content-body details > *:not(summary):last-child {
   @apply pb-3;
 }
 
@@ -848,10 +741,12 @@
 /* details 内部分割线 */
 .content-body details hr {
   @apply my-4 border-none h-px;
-  background-image: linear-gradient(to right,
-      transparent,
-      hsl(var(--border)),
-      transparent);
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--border)),
+    transparent
+  );
 }
 
 /* ============================================
@@ -933,8 +828,14 @@
 }
 
 /* 脚注高亮效果 */
-.content-body .footnote-item:target {
+.content-body .footnote-item:target,
+.content-body .footnote-item.footnote-highlight {
   @apply bg-primary/10 -mx-2 px-2 py-1 rounded;
+  animation: footnote-highlight 2s ease-out;
+}
+
+.content-body .footnote-ref.footnote-highlight {
+  @apply bg-primary/20 rounded px-0.5;
   animation: footnote-highlight 2s ease-out;
 }
 
@@ -952,37 +853,106 @@
    ============================================ */
 .content-body .mermaid,
 .content-body .mermaid-wrapper {
-  @apply my-6 p-4 rounded-lg overflow-x-auto;
+  @apply my-6 p-4 rounded-lg;
   background: hsl(var(--muted) / 0.3);
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
 .content-body .mermaid svg,
-.content-body .mermaid-render svg {
+.content-body .mermaid-render svg,
+.content-body .mermaid-wrapper svg {
   @apply mx-auto;
   background: transparent !important;
+  max-width: 100%;
+  height: auto;
+}
+
+/* --- Mermaid foreignObject 内 HTML 元素布局修正 ---
+   Mermaid 在 foreignObject 内放置 div > span > p 来渲染标签文字。
+   foreignObject 的宽高由 Mermaid 精确计算，非常紧凑（例如 28×21px）。
+   浏览器默认 <p> margin-top/bottom: 1em 会把文字推出可视区域！
+   这个规则对亮色/暗色模式都必需 */
+.mermaid svg foreignObject p,
+.mermaid-wrapper svg foreignObject p,
+.content-body .mermaid svg foreignObject p,
+.content-body .mermaid-wrapper svg foreignObject p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* foreignObject 内的 span/div 也重置 padding */
+.mermaid svg foreignObject .edgeLabel,
+.mermaid svg foreignObject .nodeLabel,
+.mermaid-wrapper svg foreignObject .edgeLabel,
+.mermaid-wrapper svg foreignObject .nodeLabel,
+.content-body .mermaid svg foreignObject .edgeLabel,
+.content-body .mermaid svg foreignObject .nodeLabel {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 移动端 Mermaid 优化 — 等比例缩放适应屏幕 */
+@media (max-width: 768px) {
+  .content-body .mermaid,
+  .content-body .mermaid-wrapper {
+    padding: 0.5rem;
+    overflow: hidden;
+  }
+
+  /* SVG 移动端整体缩小，保持协调 */
+  .content-body .mermaid svg,
+  .content-body .mermaid-render svg,
+  .content-body .mermaid-wrapper svg {
+    width: auto !important;
+    max-width: 75% !important;
+    height: auto !important;
+    margin: 0 auto;
+  }
 }
 
 /* 暗黑模式下 Mermaid 文字颜色优化 */
+
+/* --- 基础: SVG text / tspan 元素 --- */
 :root.dark .content-body .mermaid svg text,
 :root.dark .content-body .mermaid-wrapper svg text,
 :root.dark .mermaid svg text,
-:root.dark .mermaid-wrapper svg text {
+:root.dark .mermaid-wrapper svg text,
+:root.dark .content-body .mermaid svg tspan,
+:root.dark .content-body .mermaid-wrapper svg tspan,
+:root.dark .mermaid svg tspan,
+:root.dark .mermaid-wrapper svg tspan {
   fill: #f8fafc !important;
+  color: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 流程图节点标签 - 参考时序图样式 */
+/* --- foreignObject 内的 HTML 元素 ---
+   Mermaid 流程图用 foreignObject + div.labelBkg > span.edgeLabel > p 渲染节点/边文字
+   必须穿透覆盖所有 HTML 子元素的 color 属性 */
+:root.dark .mermaid svg foreignObject,
+:root.dark .mermaid svg foreignObject *,
+:root.dark .mermaid-wrapper svg foreignObject,
+:root.dark .mermaid-wrapper svg foreignObject *,
+:root.dark .content-body .mermaid svg foreignObject,
+:root.dark .content-body .mermaid svg foreignObject *,
+:root.dark .content-body .mermaid-wrapper svg foreignObject,
+:root.dark .content-body .mermaid-wrapper svg foreignObject * {
+  color: #f8fafc !important;
+  fill: #f8fafc !important;
+}
+
+/* --- 流程图: 节点标签 (.nodeLabel) --- */
 :root.dark .content-body .mermaid svg .nodeLabel,
 :root.dark .content-body .mermaid-wrapper svg .nodeLabel,
 :root.dark .mermaid svg .nodeLabel,
 :root.dark .mermaid-wrapper svg .nodeLabel {
   color: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 流程图边标签 */
+/* --- 流程图: 边标签 (.edgeLabel) 及其内部元素 --- */
 :root.dark .content-body .mermaid svg .edgeLabel,
 :root.dark .content-body .mermaid-wrapper svg .edgeLabel,
 :root.dark .mermaid svg .edgeLabel,
@@ -990,44 +960,127 @@
   background-color: #1e293b !important;
   color: #f8fafc !important;
   font-weight: 500 !important;
-  border-radius: 4px !important;
-  padding: 2px 6px !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 通用标签样式 */
+:root.dark .mermaid svg .edgeLabel span,
+:root.dark .mermaid svg .edgeLabel p,
+:root.dark .mermaid svg .labelBkg,
+:root.dark .mermaid svg .labelBkg span,
+:root.dark .mermaid svg .labelBkg p,
+:root.dark .mermaid-wrapper svg .edgeLabel span,
+:root.dark .mermaid-wrapper svg .edgeLabel p,
+:root.dark .mermaid-wrapper svg .labelBkg,
+:root.dark .mermaid-wrapper svg .labelBkg span,
+:root.dark .mermaid-wrapper svg .labelBkg p,
+:root.dark .content-body .mermaid svg .edgeLabel span,
+:root.dark .content-body .mermaid svg .edgeLabel p,
+:root.dark .content-body .mermaid svg .labelBkg,
+:root.dark .content-body .mermaid svg .labelBkg span,
+:root.dark .content-body .mermaid svg .labelBkg p {
+  color: #f8fafc !important;
+  background-color: transparent !important;
+  font-weight: 500 !important;
+}
+
+/* --- 通用 .label 类 --- */
 :root.dark .content-body .mermaid svg .label,
 :root.dark .content-body .mermaid-wrapper svg .label,
 :root.dark .mermaid svg .label,
 :root.dark .mermaid-wrapper svg .label {
   color: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 流程图特定样式 - 让文字更像时序图 */
+/* --- 流程图标签 --- */
 :root.dark .content-body .mermaid svg .flowchart-label,
 :root.dark .mermaid svg .flowchart-label {
   color: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   font-size: 14px !important;
 }
 
-/* 决策节点文字 */
+/* --- 决策节点文字 --- */
 :root.dark .content-body .mermaid svg .decision-text,
 :root.dark .mermaid svg .decision-text {
   fill: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* 流程图节点内的文字 */
+/* --- 流程图节点内文字 --- */
 :root.dark .content-body .mermaid svg .node text,
 :root.dark .mermaid svg .node text {
   fill: #f8fafc !important;
   font-weight: 500 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* --- 子图标题 (.cluster-label) --- */
+:root.dark .mermaid svg .cluster-label text,
+:root.dark .mermaid svg .cluster-label span,
+:root.dark .mermaid-wrapper svg .cluster-label text,
+:root.dark .mermaid-wrapper svg .cluster-label span,
+:root.dark .content-body .mermaid svg .cluster-label text,
+:root.dark .content-body .mermaid svg .cluster-label span {
+  fill: #f8fafc !important;
+  color: #f8fafc !important;
+  font-weight: 600 !important;
+}
+
+/* --- 时序图: 消息文字 / 参与者文字 --- */
+:root.dark .mermaid svg .messageText,
+:root.dark .mermaid svg .actor text,
+:root.dark .mermaid svg .sequenceNumber,
+:root.dark .mermaid-wrapper svg .messageText,
+:root.dark .mermaid-wrapper svg .actor text,
+:root.dark .content-body .mermaid svg .messageText,
+:root.dark .content-body .mermaid svg .actor text {
+  fill: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+/* --- 循环/条件标签 --- */
+:root.dark .mermaid svg .loopText,
+:root.dark .mermaid svg .loopText tspan,
+:root.dark .mermaid svg .labelText,
+:root.dark .mermaid svg .labelText tspan,
+:root.dark .mermaid-wrapper svg .loopText,
+:root.dark .mermaid-wrapper svg .labelText,
+:root.dark .content-body .mermaid svg .loopText,
+:root.dark .content-body .mermaid svg .labelText {
+  fill: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+/* --- 标题文字 (.titleText) --- */
+:root.dark .mermaid svg .titleText,
+:root.dark .mermaid-wrapper svg .titleText,
+:root.dark .content-body .mermaid svg .titleText {
+  fill: #f8fafc !important;
+  font-weight: 600 !important;
+}
+
+/* --- 甘特图 / 饼图 / 类图 / ER 图 --- */
+:root.dark .mermaid svg .sectionTitle,
+:root.dark .mermaid svg .taskText,
+:root.dark .mermaid svg .taskTextOutsideRight,
+:root.dark .mermaid svg .taskTextOutsideLeft,
+:root.dark .mermaid svg .classText,
+:root.dark .mermaid svg .relationshipLabel,
+:root.dark .mermaid svg .entityLabel,
+:root.dark .mermaid svg .pieLabel,
+:root.dark .mermaid svg .legend text {
+  fill: #f8fafc !important;
+  color: #f8fafc !important;
+  font-weight: 500 !important;
+}
+
+/* --- 节点边框对比度 --- */
+:root.dark .mermaid svg .node rect,
+:root.dark .mermaid svg .node circle,
+:root.dark .mermaid svg .node polygon,
+:root.dark .mermaid-wrapper svg .node rect,
+:root.dark .mermaid-wrapper svg .node circle,
+:root.dark .mermaid-wrapper svg .node polygon {
+  stroke: #60a5fa !important;
 }
 
 /* ============================================
@@ -1043,211 +1096,111 @@
 /* 块级公式 */
 .content-body .math-block,
 .content-body div[data-type="math-block"] {
-  @apply my-6 py-4 px-2 text-center overflow-x-auto rounded-lg;
+  line-height: normal;
+  display: block;
+  width: 100%;
+
+  /* 横向允许滚动，纵向不裁切 */
+  overflow-x: auto;
+  overflow-y: visible;
+
+  /* 为公式编号(.tag)留出右侧空间，防止重叠 */
+  position: relative;
+  padding: 1rem 4rem 1rem 1rem;
+
+  @apply my-6 text-center rounded-lg;
   background: hsl(var(--muted) / 0.3);
+  -webkit-overflow-scrolling: touch;
 }
 
-/* KaTeX 样式覆盖 */
+/* KaTeX display 容器 */
+.content-body .math-block .katex-display {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  overflow-y: visible;
+}
+
+/* 公式保持原始宽度不换行 */
+.content-body .math-block .katex {
+  white-space: nowrap;
+  font-size: 1.05em;
+  line-height: normal;
+}
+
+/* 修复 vlist 结构重叠 */
+.content-body .math-block .vlist-t {
+  border-collapse: separate;
+}
+
+/* 容器至少和内部内容一样宽，移除 position:relative 让 .tag 定位到 .math-block */
+.content-body .math-block .katex-html {
+  display: inline-block;
+  min-width: min-content;
+  position: static;
+}
+
+/* 公式编号(.tag)定位修正 — 固定在容器右侧，不随公式滚动 */
+.content-body .math-block .tag {
+  position: absolute !important;
+  right: 0.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: block !important;
+  margin-left: 0 !important;
+  float: none !important;
+}
+
+/* KaTeX 样式覆盖 - 行内公式 */
 .content-body .katex {
   font-size: 1.1em;
   line-height: 1.2;
 }
 
-.content-body .katex-display {
-  @apply my-0;
-  overflow: hidden !important;
-  overflow-x: hidden !important;
-  overflow-y: hidden !important;
-  white-space: nowrap;
-}
-
-/* 移动端公式优化 - 等比例缩小，无滚动条 */
+/* 移动端公式优化 — 横向滚动，不缩放 */
 @media (max-width: 768px) {
-  /* 行内公式移动端优化 */
+  /* 行内公式：保持 inline，不缩放 */
   .content-body .math-inline,
   .content-body span[data-type="math-inline"] {
-    @apply inline-block;
-    max-width: 100%;
-    vertical-align: baseline;
-    white-space: nowrap;
-    overflow: hidden;
-    transform-origin: left center;
-  }
-  
-  .content-body .math-inline .katex {
-    font-size: 0.8em;
-    transform: scale(0.7);
-    transform-origin: left center;
     display: inline-block;
-    white-space: nowrap;
-    max-width: none;
+    max-width: 100%;
+    vertical-align: middle;
+    overflow-x: auto;
+    overflow-y: visible;
   }
-  
-  /* 块级公式移动端优化 */
+
+  /* 块级公式容器：允许横向滚动，移动端不需要 padding-right（tag 改为行内） */
   .content-body .math-block,
   .content-body div[data-type="math-block"] {
-    @apply my-4 py-3 px-1;
-    overflow: hidden;
-    max-width: 100%;
-    transform-origin: center;
-    width: 100%;
-    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0.75rem;
+    -webkit-overflow-scrolling: touch;
   }
-  
+
+  /* 块级公式内容保持自然宽度 */
   .content-body .math-block .katex-display {
-    font-size: 0.7em;
-    transform: scale(0.6);
-    transform-origin: center;
-    white-space: nowrap;
-    margin: 0 auto;
-    max-width: none;
-    overflow: hidden;
+    overflow: visible;
+    text-align: center;
+    margin: 0;
   }
-  
-  /* 超小屏幕适度缩小 */
-  @media (max-width: 480px) {
-    .content-body .math-inline .katex {
-      font-size: 0.85em;
-      transform: scale(0.75);
-    }
-    
-    .content-body .math-block .katex-display {
-      font-size: 0.8em;
-      transform: scale(0.7);
-    }
-  }
-  
-  /* 防止公式堆叠 */
-  .content-body .katex .katex-html {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-  }
-  
-  .content-body .katex .base {
-    white-space: nowrap !important;
+
+  /* 公式编号在移动端改为行内跟随（覆盖桌面端的 absolute 定位） */
+  .content-body .math-block .tag {
+    position: static !important;
     display: inline-block !important;
+    margin-left: 1em !important;
+    vertical-align: middle !important;
+    float: none !important;
+    transform: none !important;
+    right: auto !important;
+    top: auto !important;
   }
-  
-  /* 矩阵和复杂公式移动端优化 */
+
+  /* 矩阵列间距略微收窄 */
   .content-body .katex .arraycolsep {
-    width: 0.2em !important;
-  }
-  
-  .content-body .katex .mtable {
-    font-size: 0.85em !important;
-  }
-  
-  .content-body .katex .mtable .col-align-c {
-    text-align: center !important;
-  }
-  
-  /* 分数和上下标移动端优化 */
-  .content-body .katex .frac-line {
-    border-bottom-width: 0.02em !important;
-  }
-  
-  .content-body .katex .sizing {
-    font-size: inherit !important;
-  }
-  
-  /* 强制所有KaTeX元素不超出容器 */
-  .content-body .katex,
-  .content-body .katex-display,
-  .content-body .katex-html {
-    max-width: 100% !important;
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    box-sizing: border-box !important;
-  }
-  
-  .content-body .katex .base {
-    max-width: 100% !important;
-    overflow: hidden !important;
-  }
-  
-  /* 强制所有数学元素适应容器 */
-  .content-body .katex .mord,
-  .content-body .katex .mop,
-  .content-body .katex .mbin,
-  .content-body .katex .mrel,
-  .content-body .katex .mopen,
-  .content-body .katex .mclose,
-  .content-body .katex .mpunct {
-    max-width: 100% !important;
-    overflow: hidden !important;
-  }
-  
-  /* 特别针对KaTeX渲染的元素 */
-  .content-body .katex-display {
-    overflow: hidden !important;
-    text-align: center !important;
-    margin: 0 auto !important;
-    width: fit-content !important;
-    max-width: 100% !important;
-  }
-  
-  /* 移动端强制覆盖所有可能的滚动 */
-  .content-body .math-block *,
-  .content-body .math-inline * {
-    overflow: hidden !important;
-    max-width: 100% !important;
-  }
-  
-  /* 最高优先级覆盖 - 针对具体的KaTeX类 */
-  .content-body .katex[style*="overflow"] {
-    overflow: hidden !important;
-  }
-  
-  .content-body .katex-display[style*="overflow"] {
-    overflow: hidden !important;
-  }
-  
-  /* 覆盖内联样式 */
-  .content-body .math-block[style*="overflow"],
-  .content-body .math-inline[style*="overflow"] {
-    overflow: hidden !important;
-  }
-  
-  /* 移动端公式容器优化 - 完全无滚动条 */
-  .mobile-math-optimized .math-block,
-  .mobile-math-optimized .math-inline {
-    overflow: hidden !important;
-    max-width: 100% !important;
-  }
-  
-  /* 强制移动端公式预览模式 */
-  .mobile-math-optimized .katex-display {
-    text-align: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    transform-origin: center !important;
-  }
-  
-  /* 确保公式容器不会产生任何滚动条 */
-  .mobile-math-optimized {
-    overflow: hidden !important;
-  }
-  
-  .mobile-math-optimized .math-block {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-  
-  /* 强制所有KaTeX元素适应容器 */
-  .mobile-math-optimized .katex {
-    max-width: 100% !important;
-    overflow: hidden !important;
-  }
-  
-  .mobile-math-optimized .katex-html {
-    max-width: 100% !important;
-    overflow: hidden !important;
+    width: 0.3em;
   }
 }
 
@@ -1258,59 +1211,29 @@
   @apply min-h-[600px] focus:outline-none pb-24; /* 增加最小高度 */
 }
 
-/* 编辑器中的数学块防重叠 */
+/* 编辑器中的数学块 */
 @media (max-width: 768px) {
   .content-editor .math-block-wrapper {
-    position: relative !important;
-    z-index: 1 !important;
-    margin: 1rem 0 !important;
-    clear: both !important;
+    position: relative;
+    margin: 1rem 0;
+    clear: both;
   }
-  
+
   .content-editor .math-preview {
-    overflow: hidden !important;
-    position: relative !important;
-    z-index: 1 !important;
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
   }
-  
-  .content-editor .math-preview .katex-display {
-    overflow: hidden !important;
-    position: static !important;
-    z-index: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  /* 修复KaTeX行标识重叠问题 */
-  .content-editor .katex .tag {
-    position: static !important;
-    right: auto !important;
-    display: inline !important;
-    margin-left: 1em !important;
-    float: none !important;
-  }
-  
-  .content-editor .katex .katex-display .tag {
-    position: static !important;
-    right: auto !important;
-    top: auto !important;
-    display: inline-block !important;
-    margin-left: 1em !important;
-    vertical-align: middle !important;
-  }
-  
-  /* 强制所有KaTeX标签元素不使用绝对定位 */
-  .content-editor .katex .eqn-num,
+
+  /* 编辑器中公式编号改为行内 */
   .content-editor .katex .tag,
-  .content-editor .katex-display .eqn-num,
-  .content-editor .katex-display .tag {
-    position: static !important;
-    right: auto !important;
-    top: auto !important;
-    transform: none !important;
-    display: inline-block !important;
-    margin-left: 0.5em !important;
-    vertical-align: middle !important;
+  .content-editor .katex .eqn-num,
+  .content-editor .katex-display .tag,
+  .content-editor .katex-display .eqn-num {
+    position: static;
+    display: inline-block;
+    margin-left: 0.5em;
+    vertical-align: middle;
   }
 }
 
@@ -1333,52 +1256,34 @@
   body {
     overflow-x: hidden;
   }
-  
+
   .content-body {
     overflow: hidden;
     max-width: 100vw;
     box-sizing: border-box;
+
+    /* 移动端缩小默认间距（可被 spacing 变体覆盖） */
+    --content-h1-mt: 2rem;
+    --content-h1-mb: 1rem;
+    --content-h2-mt: 1.5rem;
+    --content-h2-mb: 0.75rem;
+    --content-h3-mt: 1.25rem;
+    --content-h3-mb: 0.75rem;
+    --content-p-mb: 0.75rem;
+    --content-img-my: 1rem;
   }
-  
-  .content-body h1 {
-    @apply text-2xl mt-8 mb-4; /* 移动端减小标题 */
-  }
-  
-  .content-body h2 {
-    @apply text-xl mt-6 mb-3;
-  }
-  
-  .content-body h3 {
-    @apply text-lg mt-5 mb-3;
-  }
-  
-  .content-body p {
-    @apply mb-4; /* 移动端减少段落间距 */
-    line-height: 1.7; /* 移动端稍微紧凑的行高 */
-  }
-  
-  .content-body img {
-    @apply my-4; /* 移动端减少图片间距 */
-  }
-  
-  .content-body ul,
-  .content-body ol {
-    @apply mb-4; /* 移动端减少列表间距 */
-  }
-  
-/* 移动端表格优化 */
-@media (max-width: 768px) {
+
+  /* 移动端表格优化 */
   .content-body th,
   .content-body td {
-    @apply px-2 py-2 text-xs; /* 移动端减少表格内边距和字体 */
-    width: 80px; /* 移动端减小单元格宽度 */
-    height: 40px; /* 移动端减小单元格高度 */
+    @apply px-2 py-2 text-xs;
+    width: 80px;
+    height: 40px;
   }
-}
-  
+
   /* 移动端代码块优化 */
   .content-body pre {
-    @apply my-4 p-3; /* 减少移动端代码块间距和内边距 */
+    @apply my-4 p-3;
     overflow: hidden;
     max-width: 100%;
     font-size: 0.8em;
@@ -1424,20 +1329,20 @@
 }
 
 /* details 内容区域 */
-.content-editor details>*:not(summary) {
+.content-editor details > *:not(summary) {
   @apply px-4;
 }
 
-.content-editor details>*:not(summary):first-of-type {
+.content-editor details > *:not(summary):first-of-type {
   @apply pt-3;
 }
 
-.content-editor details>*:not(summary):last-child {
+.content-editor details > *:not(summary):last-child {
   @apply pb-3;
 }
 
 /* 折叠时隐藏内容 */
-.content-editor details:not([open])>*:not(summary) {
+.content-editor details:not([open]) > *:not(summary) {
   @apply hidden;
 }
 
@@ -1507,10 +1412,12 @@
 /* 编辑器 details 内部分割线 */
 .content-editor details hr {
   @apply my-4 border-none h-px;
-  background-image: linear-gradient(to right,
-      transparent,
-      hsl(var(--border)),
-      transparent);
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--border)),
+    transparent
+  );
 }
 
 /* ============================================
@@ -1521,130 +1428,541 @@
 }
 
 /* ============================================
-   主题变体: Default (当前主题)
+   主题变体: Default — 自然绿色，温暖清新
+   适合：通用博客、技术文章
+   排版风格：两端对齐、标准缩进、柔和装饰
    ============================================ */
 .content-theme-default {
   --content-primary: #42b983;
+  --content-quote-bg: rgba(66, 185, 131, 0.06);
 }
 
+.dark .content-theme-default {
+  --content-primary: #5cd6a0;
+  --content-quote-bg: rgba(92, 214, 160, 0.08);
+}
+
+/* Default: h3 左边框使用渐变 */
+.content-theme-default h3 {
+  border-image: linear-gradient(to bottom, #42b983, #2d8f63) 1;
+}
+
+.dark .content-theme-default h3 {
+  border-image: linear-gradient(to bottom, #5cd6a0, #42b983) 1;
+}
+
+/* Default: 链接悬停效果 */
+.content-theme-default a:hover {
+  opacity: 1;
+  border-bottom-width: 2px;
+}
+
+/* Default: 行内代码 */
+.content-theme-default code:not(pre code) {
+  color: #2d8f63;
+  background-color: rgba(66, 185, 131, 0.08);
+  border-color: rgba(66, 185, 131, 0.15);
+}
+
+.dark .content-theme-default code:not(pre code) {
+  color: #5cd6a0;
+  background-color: rgba(92, 214, 160, 0.1);
+  border-color: rgba(92, 214, 160, 0.2);
+}
+
+/* Default: mark 绿底高亮 */
+.content-theme-default mark {
+  background-color: rgba(66, 185, 131, 0.2);
+}
+
+.dark .content-theme-default mark {
+  background-color: rgba(92, 214, 160, 0.2);
+}
+
+/* Default: 嵌套列表标记保持默认 */
+
 /* ============================================
-   主题变体: Minimal
+   主题变体: Minimal — 纯粹黑白，克制内敛
+   适合：摄影博客、个人随笔、设计类
+   排版风格：左对齐、无装饰、大留白
    ============================================ */
 .content-theme-minimal {
   --content-primary: hsl(var(--foreground));
+  --content-quote-bg: transparent;
 }
 
+/* Minimal: 段落左对齐，不使用 justify */
+.content-theme-minimal p {
+  text-align: left;
+}
+
+/* Minimal: 标题使用轻量 font-weight + 紧字距 */
+.content-theme-minimal h1 {
+  @apply font-light;
+  font-size: 2.25em;
+  letter-spacing: -0.02em;
+}
+
+.content-theme-minimal h2 {
+  @apply font-normal;
+  font-size: 1.5em;
+  letter-spacing: -0.01em;
+}
+
+/* Minimal: h3 大写间距 */
 .content-theme-minimal h3 {
-  @apply border-l-0 pl-0;
+  @apply border-l-0 pl-0 uppercase;
+  font-size: 0.875em;
+  letter-spacing: 0.15em;
+  font-weight: 500;
 }
 
-.content-theme-minimal blockquote {
-  @apply border-l-2;
-  border-color: hsl(var(--border));
-}
-
+/* Minimal: 链接无装饰下划线，hover 时出现 */
 .content-theme-minimal a {
   color: hsl(var(--foreground));
-  border-bottom-color: hsl(var(--border));
+  border-bottom: none;
+  transition: border-bottom-color 0.2s ease;
+}
+
+.content-theme-minimal a:hover {
+  border-bottom: 1px solid hsl(var(--foreground));
+  opacity: 1;
+}
+
+/* Minimal: 行内代码极简 */
+.content-theme-minimal code:not(pre code) {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--muted) / 0.5);
+  border: none;
+}
+
+.dark .content-theme-minimal code:not(pre code) {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Minimal: 列表保持默认样式 */
+.content-theme-minimal li {
+  color: hsl(var(--foreground) / 0.85);
+}
+
+/* Minimal: mark 灰色高亮 */
+.content-theme-minimal mark {
+  background-color: hsl(var(--muted));
+}
+
+.dark .content-theme-minimal mark {
+  background-color: hsl(var(--muted) / 0.6);
+}
+
+/* Minimal: 代码块无边框无阴影 */
+.content-theme-minimal pre {
+  box-shadow: none;
+  @apply border-none rounded-none;
+}
+
+/* Minimal: 图片无边框无阴影 */
+.content-theme-minimal img {
+  @apply border-0 rounded-none;
+  box-shadow: none;
 }
 
 /* ============================================
-   主题变体: Magazine
+   主题变体: Magazine — 经典杂志排版
+   适合：长篇叙事、专栏文章、评论
+   排版风格：两端对齐、衬线正文、首字下沉
    ============================================ */
 .content-theme-magazine {
-  --content-primary: #e63946;
+  --content-primary: #c0392b;
+  --content-quote-bg: rgba(192, 57, 43, 0.04);
+  --content-line-height: 1.9;
   @apply font-serif;
 }
 
+.dark .content-theme-magazine {
+  --content-primary: #e74c3c;
+  --content-quote-bg: rgba(231, 76, 60, 0.06);
+}
+
+/* Magazine: 段落两端对齐 + 间距 */
+.content-theme-magazine p {
+  text-align: justify;
+  letter-spacing: 0.01em;
+  hyphens: auto;
+}
+
+/* Magazine: 标题用 sans-serif 形成衬线/无衬线对比 */
 .content-theme-magazine h1,
 .content-theme-magazine h2,
 .content-theme-magazine h3,
 .content-theme-magazine h4 {
   @apply font-sans;
+  letter-spacing: 0;
 }
 
+/* Magazine: h1 大标题居中 + 装饰线 */
 .content-theme-magazine h1 {
-  @apply text-4xl md:text-5xl text-center;
+  @apply text-center pb-4 mb-8;
+  font-size: 2.25em;
+  position: relative;
 }
 
-.content-theme-magazine p:first-of-type::first-letter {
-  @apply text-5xl font-bold float-left mr-2 leading-none;
-  color: var(--content-primary);
+@media (min-width: 768px) {
+  .content-theme-magazine h1 {
+    font-size: 3em;
+  }
 }
+
+.content-theme-magazine h1::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background-color: var(--content-primary);
+  margin: 1rem auto 0;
+}
+
+/* Magazine: h2 带左侧红色粗线 */
+.content-theme-magazine h2 {
+  @apply pl-4 border-l-4;
+  border-color: var(--content-primary);
+}
+
+/* Magazine: h3 去除默认左边框，用下划线 */
+.content-theme-magazine h3 {
+  @apply border-l-0 pl-0 pb-2 border-b;
+  border-color: hsl(var(--border));
+}
+
+/* Magazine: 首段首字下沉 */
+.content-theme-magazine > p:first-of-type::first-letter,
+.content-theme-magazine .content-article > p:first-of-type::first-letter {
+  @apply text-5xl font-bold float-left mr-3 leading-none;
+  color: var(--content-primary);
+  font-family: Georgia, serif;
+  padding-top: 4px;
+}
+
+/* Magazine: 行内代码 */
+.content-theme-magazine code:not(pre code) {
+  color: #8e2420;
+  background-color: rgba(192, 57, 43, 0.06);
+  border-color: rgba(192, 57, 43, 0.12);
+  @apply font-mono;
+}
+
+.dark .content-theme-magazine code:not(pre code) {
+  color: #f1948a;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.2);
+}
+
+/* Magazine: 嵌套列表保持默认样式 */
+.content-theme-magazine a {
+  color: var(--content-primary);
+  border-bottom-color: var(--content-primary);
+}
+
+/* Magazine: mark 红色柔和高亮 */
+.content-theme-magazine mark {
+  background-color: rgba(192, 57, 43, 0.12);
+}
+
+.dark .content-theme-magazine mark {
+  background-color: rgba(231, 76, 60, 0.15);
+}
+
+/* Magazine: 嵌套列表保持默认样式 */
 
 /* ============================================
-   主题变体: Notion
+   主题变体: Notion — 紧凑工具风
+   适合：技术文档、知识库、笔记
+   排版风格：左对齐、紧凑、扁平化装饰
    ============================================ */
 .content-theme-notion {
   --content-primary: #2383e2;
   --content-quote-bg: hsl(var(--muted) / 0.5);
+  --content-line-height: 1.7;
+  letter-spacing: 0;
 }
 
+.dark .content-theme-notion {
+  --content-primary: #529cca;
+  --content-quote-bg: hsl(var(--muted) / 0.3);
+}
+
+/* Notion: 段落左对齐、紧凑行高 */
+.content-theme-notion p {
+  text-align: left;
+  letter-spacing: 0;
+}
+
+/* Notion: 标题紧凑，无装饰，字距 0 */
 .content-theme-notion h1 {
-  @apply text-4xl font-bold mt-8 mb-4;
+  @apply font-bold;
+  font-size: 2.25em;
+  letter-spacing: 0;
 }
 
 .content-theme-notion h2 {
-  @apply text-2xl font-semibold mt-6 mb-3;
+  @apply font-semibold;
+  font-size: 1.5em;
+  letter-spacing: 0;
 }
 
 .content-theme-notion h3 {
-  @apply text-xl font-semibold mt-5 mb-2 border-l-0 pl-0;
+  @apply font-semibold border-l-0 pl-0;
+  font-size: 1.25em;
+  letter-spacing: 0;
 }
 
-.content-theme-notion blockquote {
-  @apply border-l-3 rounded-none;
-}
-
+/* Notion: 行内代码 — 经典红色 */
 .content-theme-notion code:not(pre code) {
-  @apply text-red-500 bg-red-50;
+  color: #eb5757;
+  background-color: rgba(235, 87, 87, 0.06);
+  border: none;
+  @apply rounded-sm px-1 py-0.5;
 }
 
 .dark .content-theme-notion code:not(pre code) {
-  @apply text-red-400 bg-red-950/50;
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Notion: 链接蓝色下划线 */
+.content-theme-notion a {
+  color: var(--content-primary);
+  border-bottom: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--content-primary);
+}
+
+.content-theme-notion a:hover {
+  opacity: 0.8;
+}
+
+/* Notion: checkbox 蓝色 */
+.content-theme-notion pre {
+  box-shadow: none;
+  @apply border-none;
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+.dark .content-theme-notion pre {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Notion: checkbox 蓝色 */
+.content-theme-notion ul[data-type="taskList"] input[type="checkbox"] {
+  accent-color: #2383e2;
+}
+
+.dark .content-theme-notion ul[data-type="taskList"] input[type="checkbox"] {
+  accent-color: #529cca;
+}
+
+/* Notion: mark 黄色高亮（Notion 经典） */
+.content-theme-notion mark {
+  background-color: rgba(255, 212, 0, 0.4);
+  @apply rounded-sm;
+}
+
+.dark .content-theme-notion mark {
+  background-color: rgba(255, 212, 0, 0.2);
+}
+
+/* Notion: 图片无阴影 */
+.content-theme-notion img {
+  box-shadow: none;
 }
 
 /* ============================================
-   主题变体: Japanese (日式简约)
+   主题变体: Japanese — 日式组版美学
+   适合：散文、随笔、文学类内容
+   排版风格：两端对齐、首行缩进、大行距、书籍感
    ============================================ */
 .content-theme-japanese {
-  --content-primary: #2563eb; /* 蓝色强调 */
-  --content-quote-bg: hsl(var(--muted) / 0.2);
-  
-  /* 更大的行高，提高可读性 */
-  line-height: 1.8;
+  --content-primary: #1a5fb4;
+  --content-quote-bg: transparent;
+  --content-line-height: 2;
+  --content-p-mb: 1.25rem;
+  --content-h1-mt: 2.5rem;
+  --content-h1-mb: 2rem;
+  --content-h2-mt: 2.5rem;
+  --content-h2-mb: 1.5rem;
+  --content-h3-mt: 2rem;
+  --content-h3-mb: 1rem;
+
+  letter-spacing: 0.04em;
 }
 
-.content-theme-japanese h1 {
-  @apply text-center pb-4 mb-8 border-b border-border;
-  /* 标题居中，添加下边框 */
+.dark .content-theme-japanese {
+  --content-primary: #5b9bd5;
 }
 
-.content-theme-japanese h2 {
-  @apply mt-12 mb-6; /* 增加章节间距 */
-}
-
+/* Japanese: 段落首行缩进 + 两端对齐 */
 .content-theme-japanese p {
-  @apply mb-6; /* 更大的段落间距 */
-  text-indent: 1em; /* 段落首行缩进 */
+  text-indent: 2em;
+  text-align: justify;
 }
 
-/* 日式引用样式 */
-.content-theme-japanese blockquote {
-  @apply border-l-0 border-t-2 border-b-2 py-4 px-6 text-center italic;
-  border-color: var(--content-primary);
-  background-color: transparent;
+/* Japanese: 列表/引用/代码内不缩进 */
+.content-theme-japanese li > p,
+.content-theme-japanese blockquote p,
+.content-theme-japanese pre + p {
+  text-indent: 0;
 }
 
-/* 日式列表样式 */
+/* Japanese: h1 居中 + 底部细线 */
+.content-theme-japanese h1 {
+  @apply text-center pb-6 font-normal;
+  letter-spacing: 0.1em;
+  position: relative;
+}
+
+.content-theme-japanese h1::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 2px;
+  background-color: var(--content-primary);
+  margin: 1.5rem auto 0;
+}
+
+/* Japanese: h2 轻字重 + 底部边框 */
+.content-theme-japanese h2 {
+  @apply font-normal pb-3;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Japanese: h3 无左边框，更轻的字重 */
+.content-theme-japanese h3 {
+  @apply border-l-0 pl-0 font-medium;
+  letter-spacing: 0.06em;
+}
+
+/* Japanese: 链接 — 蓝色，无边框 */
+.content-theme-japanese a {
+  color: var(--content-primary);
+  border-bottom: none;
+  text-decoration: none;
+}
+
+.content-theme-japanese a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  opacity: 1;
+}
+
+/* Japanese: 行内代码 */
+.content-theme-japanese code:not(pre code) {
+  color: #1a5fb4;
+  background-color: rgba(26, 95, 180, 0.05);
+  border-color: rgba(26, 95, 180, 0.1);
+}
+
+.dark .content-theme-japanese code:not(pre code) {
+  color: #5b9bd5;
+  background-color: rgba(91, 155, 213, 0.1);
+  border-color: rgba(91, 155, 213, 0.15);
+}
+
+/* Japanese: 更大的列表间距 */
 .content-theme-japanese ul,
 .content-theme-japanese ol {
-  @apply mb-6; /* 更大的列表间距 */
+  @apply mb-6;
 }
 
 .content-theme-japanese li {
-  @apply mb-3; /* 更大的列表项间距 */
-  line-height: 1.8;
+  @apply mb-3;
+}
+
+/* Japanese: 代码块柔和 */
+.content-theme-japanese pre {
+  box-shadow: none;
+  @apply rounded-sm;
+}
+
+/* Japanese: 图片无边框，更柔和的阴影 */
+.content-theme-japanese img {
+  @apply border-0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* Japanese: mark 淡蓝底 */
+.content-theme-japanese mark {
+  background-color: rgba(26, 95, 180, 0.12);
+}
+
+.dark .content-theme-japanese mark {
+  background-color: rgba(91, 155, 213, 0.15);
+}
+
+/* ============================================
+   行高变体（置于主题之后，级联覆盖主题默认值）
+   ============================================ */
+.content-leading-tight {
+  --content-line-height: 1.4;
+}
+
+.content-leading-normal {
+  --content-line-height: 1.6;
+}
+
+.content-leading-relaxed {
+  --content-line-height: 1.75;
+}
+
+.content-leading-loose {
+  --content-line-height: 2;
+}
+
+/* ============================================
+   间距变体（置于主题之后，级联覆盖主题默认值）
+   ============================================ */
+.content-spacing-tight {
+  --content-p-mb: 0.25rem;
+  --content-h1-mt: 1rem;
+  --content-h1-mb: 0.5rem;
+  --content-h2-mt: 0.75rem;
+  --content-h2-mb: 0.375rem;
+  --content-h3-mt: 0.5rem;
+  --content-h3-mb: 0.25rem;
+  --content-img-my: 0.5rem;
+}
+
+.content-spacing-compact {
+  --content-p-mb: 0.5rem;
+  --content-h1-mt: 1.5rem;
+  --content-h1-mb: 0.75rem;
+  --content-h2-mt: 1.25rem;
+  --content-h2-mb: 0.5rem;
+  --content-h3-mt: 1rem;
+  --content-h3-mb: 0.375rem;
+  --content-img-my: 0.75rem;
+}
+
+.content-spacing-normal {
+  --content-p-mb: 1rem;
+  --content-h1-mt: 2.5rem;
+  --content-h1-mb: 1rem;
+  --content-h2-mt: 2rem;
+  --content-h2-mb: 0.75rem;
+  --content-h3-mt: 1.5rem;
+  --content-h3-mb: 0.5rem;
+  --content-img-my: 1.25rem;
+}
+
+.content-spacing-loose {
+  --content-p-mb: 1.5rem;
+  --content-h1-mt: 3.5rem;
+  --content-h1-mb: 1.5rem;
+  --content-h2-mt: 2.5rem;
+  --content-h2-mb: 1.25rem;
+  --content-h3-mt: 2rem;
+  --content-h3-mb: 1rem;
+  --content-img-my: 2rem;
 }
 
 /* ============================================
@@ -1656,7 +1974,6 @@
 }
 
 @keyframes content-highlight-pulse {
-
   0%,
   100% {
     background-color: transparent;
@@ -1671,7 +1988,6 @@
     background-color: hsl(var(--primary) / 0.25);
   }
 }
-
 
 /* ============================================
    摘要内容样式
@@ -1846,7 +2162,6 @@
 .dark .hljs-deletion {
   color: #ffa198;
 }
-
 
 /* ============================================
    CodeBlockLowlight 代码块样式
